@@ -1,0 +1,126 @@
+:root {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: #0f172a;
+  background-color: #f8fafc;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.admin-shell {
+  min-height: 100vh;
+}
+
+.admin-logo {
+  font-weight: 700;
+  font-size: 18px;
+  color: #e2e8f0;
+  margin-bottom: 16px;
+}
+
+.admin-sidebar {
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+.admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.admin-header .meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.content-wrap {
+  padding: 24px;
+}
+
+.card-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.page-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.page-title h2 {
+  margin: 0;
+}
+
+.json-textarea textarea {
+  font-family: "Cascadia Code", Consolas, monospace;
+}
+
+.editor-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.editor-panel {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px;
+  background: #ffffff;
+}
+
+.preview-panel {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px;
+  background: #f8fafc;
+}
+
+.content-preview {
+  line-height: 1.7;
+}
+
+.content-preview h1,
+.content-preview h2,
+.content-preview h3 {
+  margin-top: 1.2rem;
+}
+
+.content-preview pre {
+  background: #0f172a;
+  color: #e2e8f0;
+  padding: 12px;
+  border-radius: 6px;
+  overflow-x: auto;
+}
+
+.tiptap {
+  min-height: 220px;
+  padding: 8px;
+  outline: none;
+}
+
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
