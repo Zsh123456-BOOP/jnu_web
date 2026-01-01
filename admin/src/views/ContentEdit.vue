@@ -1,7 +1,7 @@
 <script setup>
 import { computed, reactive, ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { ElMessage, ElCard, ElForm, ElFormItem, ElInput, ElButton, ElSelect, ElOption, ElRadioGroup, ElRadio, ElRow, ElCol } from 'element-plus';
+import { ElMessage, ElCard, ElForm, ElFormItem, ElInput, ElButton, ElSelect, ElOption, ElRadioGroup, ElRadioButton, ElDatePicker } from 'element-plus';
 import http, { getErrorMessage } from '../utils/http';
 import MarkdownRenderer from '../components/MarkdownRenderer.vue';
 import RichTextEditor from '../components/RichTextEditor.vue';
@@ -22,6 +22,7 @@ const form = reactive({
   slug: '',
   status: 'draft',
   year: '',
+  cover_asset_id: '',
   summary: '',
   tags: '',
   authors: '',
@@ -38,6 +39,15 @@ const loading = ref(false);
 const selectedModuleLabel = computed(() => {
   const match = modules.value.find((item) => String(item.id) === String(form.module_id));
   return match?.name || '';
+});
+const selectedModuleSlug = computed(() => {
+  const match = modules.value.find((item) => String(item.id) === String(form.module_id));
+  return match?.slug || '';
+});
+const slugPreview = computed(() => {
+  const moduleSegment = selectedModuleSlug.value || 'module';
+  const slugSegment = form.slug || 'slug';
+  return `/${moduleSegment}/${slugSegment}`;
 });
 
 const stringifyList = (value) => {
@@ -79,6 +89,7 @@ const loadInitialData = async () => {
         form.slug = content.slug || '';
         form.status = content.status || 'draft';
         form.year = content.year || '';
+        form.cover_asset_id = content.cover_asset_id || '';
         form.summary = content.summary || '';
         form.tags = stringifyList(content.tags_json);
         form.authors = stringifyList(content.authors_json);
@@ -120,6 +131,7 @@ const handleSave = async () => {
     content_html: form.content_format === 'richtext' ? form.content_html : undefined,
     summary: form.summary.trim() || undefined,
     year: form.year ? Number(form.year) : undefined,
+    cover_asset_id: form.cover_asset_id ? Number(form.cover_asset_id) : undefined,
     tags_json: normalizeList(form.tags),
     authors_json: normalizeList(form.authors),
     meta_json: metaJson,
@@ -151,108 +163,125 @@ const rules = {
 </script>
 
 <template>
-  <div class="content-edit">
-    <!-- Header -->
-    <div class="page-header">
+  <div class="page-container content-edit">
+    <div class="page-header content-edit-header">
       <h1>{{ pageTitle }}</h1>
-      <div class="header-actions">
+      <div class="content-edit-actions">
         <el-button @click="router.back()">返回</el-button>
         <el-button type="primary" :loading="loading" @click="handleSave">保存</el-button>
       </div>
     </div>
 
-    <!-- Form Layout -->
     <el-form ref="formRef" :model="form" :rules="rules" label-position="top" :disabled="loading">
-      <el-row :gutter="24">
-        <!-- Main Column -->
-        <el-col :xs="24" :sm="24" :md="24" :lg="18" :xl="18">
+      <div class="content-edit-grid">
+        <section class="content-main">
           <el-card class="box-card with-padding">
+            <template #header>内容信息</template>
             <el-form-item label="标题" prop="title">
-              <el-input v-model="form.title" placeholder="内容标题" size="large"/>
+              <el-input v-model="form.title" placeholder="请输入内容标题" size="large" class="title-input" />
             </el-form-item>
             <el-form-item label="Slug" prop="slug">
-              <el-input v-model="form.slug" placeholder="用于详情页的 slug">
-                 <template #prepend>/{{ form.module_id }}/</template>
-              </el-input>
+              <el-input v-model="form.slug" placeholder="例如：research-overview" />
+              <div class="slug-preview">URL 预览：{{ slugPreview }}</div>
             </el-form-item>
+            <el-form-item label="摘要">
+              <el-input v-model="form.summary" type="textarea" :rows="3" placeholder="简要描述内容亮点" />
+            </el-form-item>
+          </el-card>
 
-            <el-form-item label="内容">
-              <el-radio-group v-model="form.content_format" style="margin-bottom: 12px;">
-                <el-radio-button value="markdown">Markdown</el-radio-button>
-                <el-radio-button value="richtext">富文本</el-radio-button>
-              </el-radio-group>
-              
-              <div class="editor-container">
-                <el-input
-                  v-if="form.content_format === 'markdown'"
-                  v-model="form.content_md"
-                  type="textarea"
-                  :rows="20"
-                  class="md-editor"
-                  placeholder="输入 Markdown 内容..."
-                />
-                <RichTextEditor v-else v-model="form.content_html" />
+          <el-card class="box-card with-padding">
+            <template #header>正文内容</template>
+            <el-form-item label="内容格式">
+              <div class="format-toggle">
+                <el-radio-group v-model="form.content_format">
+                  <el-radio-button value="markdown">Markdown</el-radio-button>
+                  <el-radio-button value="richtext">富文本</el-radio-button>
+                </el-radio-group>
               </div>
             </el-form-item>
+            <div class="editor-divider" aria-hidden="true"></div>
+            <div class="editor-container">
+              <el-input
+                v-if="form.content_format === 'markdown'"
+                v-model="form.content_md"
+                type="textarea"
+                :rows="20"
+                class="md-editor"
+                placeholder="输入 Markdown 内容..."
+              />
+              <RichTextEditor v-else v-model="form.content_html" />
+            </div>
           </el-card>
 
-          <el-card title="内容预览" class="box-card with-padding preview-card">
-             <template #header>内容预览</template>
-             <div class="admin-prose">
-                <MarkdownRenderer v-if="form.content_format === 'markdown'" :source="form.content_md" />
-                <div v-else v-html="form.content_html"></div>
-             </div>
+          <el-card class="box-card with-padding preview-card">
+            <template #header>内容预览</template>
+            <div class="admin-prose">
+              <MarkdownRenderer v-if="form.content_format === 'markdown'" :source="form.content_md" />
+              <div v-else v-html="form.content_html"></div>
+            </div>
           </el-card>
-        </el-col>
-        
-        <!-- Side Column -->
-        <el-col :xs="24" :sm="24" :md="24" :lg="6" :xl="6" class="content-sidebar">
+        </section>
+
+        <aside class="content-sidebar">
           <el-card class="box-card with-padding">
-            <template #header>发布</template>
+            <template #header>发布设置</template>
+            <el-form-item label="状态" prop="status">
+              <el-radio-group v-model="form.status" class="status-toggle">
+                <el-radio-button value="draft">草稿</el-radio-button>
+                <el-radio-button value="published">已发布</el-radio-button>
+              </el-radio-group>
+            </el-form-item>
             <el-form-item label="模块" prop="module_id">
               <el-select
                 v-model="form.module_id"
                 class="select-ellipsis"
-                placeholder="选择模块"
+                placeholder="请选择模块"
                 :title="selectedModuleLabel"
               >
                 <el-option v-for="item in modules" :key="item.id" :label="item.name" :value="item.id" />
               </el-select>
             </el-form-item>
-            <el-form-item label="状态" prop="status">
-              <el-select v-model="form.status">
-                <el-option label="草稿" value="draft" />
-                <el-option label="已发布" value="published" />
-              </el-select>
+            <el-form-item label="发布日期">
+              <el-date-picker
+                v-model="form.published_at"
+                type="datetime"
+                placeholder="选择日期时间"
+                format="YYYY-MM-DD HH:mm"
+                value-format="YYYY-MM-DD HH:mm:ss"
+              />
             </el-form-item>
           </el-card>
 
           <el-card class="box-card with-padding">
-             <template #header>元数据</template>
-            <el-form-item label="年份">
-              <el-input v-model="form.year" placeholder="例如: 2024" />
+            <template #header>媒体</template>
+            <el-form-item label="封面资源 ID">
+              <el-input v-model="form.cover_asset_id" placeholder="例如：123" />
             </el-form-item>
-            <el-form-item label="摘要">
-              <el-input v-model="form.summary" type="textarea" :rows="3" />
+          </el-card>
+
+          <el-card class="box-card with-padding">
+            <template #header>元数据</template>
+            <el-form-item label="年份">
+              <el-input v-model="form.year" placeholder="例如：2024" />
             </el-form-item>
             <el-form-item label="Tags (逗号分隔)">
-              <el-input v-model="form.tags" placeholder="AI, Biology" />
+              <el-input v-model="form.tags" placeholder="如：AI, Biology" />
             </el-form-item>
             <el-form-item label="Authors (逗号分隔)">
-              <el-input v-model="form.authors" placeholder="Alice, Bob" />
+              <el-input v-model="form.authors" placeholder="如：Alice, Bob" />
             </el-form-item>
-             <el-form-item label="meta_json">
+            <el-form-item label="扩展字段 (JSON)">
               <el-input
                 v-model="form.meta_json"
                 type="textarea"
                 :rows="4"
                 class="json-textarea"
-                placeholder="{ }"
+                placeholder='{"key":"value"}'
               />
             </el-form-item>
           </el-card>
-        </el-col>
-      </el-row>
+        </aside>
+      </div>
     </el-form>
   </div>
 </template>
@@ -277,15 +306,38 @@ const rules = {
 </style>
 
 <style scoped>
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
+.content-edit-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--admin-bg);
+  padding: 16px 0;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--el-border-color-light);
+  box-shadow: 0 6px 12px -12px rgba(15, 23, 42, 0.45);
 }
-.page-header h1 {
-  margin: 0;
-  font-size: 24px;
+
+.content-edit-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.content-edit-grid {
+  display: grid;
+  gap: 24px;
+}
+
+@media (min-width: 1024px) {
+  .content-edit-grid {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 3fr);
+    align-items: start;
+  }
+}
+
+.content-main,
+.content-sidebar {
+  min-width: 0;
 }
 
 .box-card {
@@ -294,14 +346,46 @@ const rules = {
 .box-card.with-padding {
   --el-card-padding: 20px;
 }
-.preview-card {
-  margin-top: 20px;
+
+.title-input :deep(.el-input__inner) {
+  font-size: 1.25rem;
+  font-weight: 600;
 }
 
+.slug-preview {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--el-text-color-secondary);
+}
+
+.format-toggle {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px;
+  background: var(--el-fill-color-light);
+  border: 1px solid var(--el-border-color-light);
+  border-radius: 9999px;
+}
+
+.status-toggle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.editor-divider {
+  height: 1px;
+  background: var(--el-border-color-light);
+  margin: 4px 0 16px;
+}
 .editor-container {
   width: 100%;
 }
 .md-editor, .json-textarea {
   font-family: monospace;
+}
+
+.content-sidebar :deep(.el-date-editor) {
+  width: 100%;
 }
 </style>

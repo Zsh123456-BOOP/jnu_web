@@ -43,6 +43,7 @@ const handleLogin = async () => {
     <el-card class="login-card">
       <template #header>
         <div class="card-header">
+          <div class="login-logo">LAB</div>
           <strong>管理员登录</strong>
         </div>
       </template>
@@ -89,11 +90,29 @@ const handleLogin = async () => {
 .login-card {
   width: 100%;
   max-width: 380px;
+  box-shadow: 0 18px 40px -28px rgba(15, 23, 42, 0.5);
 }
 
 .card-header {
   text-align: center;
   font-size: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.login-logo {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--el-color-primary-light-8);
+  color: var(--el-color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  letter-spacing: 0.08em;
 }
 
 .login-button {

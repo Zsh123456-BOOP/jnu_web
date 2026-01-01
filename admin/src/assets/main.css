@@ -8,19 +8,21 @@
 :root {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   color: #111827;
-  background-color: #f7f8fa;
-  --admin-bg: #f7f8fa;
+  background-color: var(--bg-color);
+  --bg-color: #f3f4f6;
+  --admin-bg: #f3f4f6;
   --admin-card: #ffffff;
   --admin-border: #e6e8ec;
   --admin-text: #111827;
   --admin-text-muted: #6b7280;
 
-  --el-color-primary: #2563eb;
-  --el-color-primary-light-3: #60a5fa;
-  --el-color-primary-light-5: #93c5fd;
-  --el-color-primary-light-7: #bfdbfe;
-  --el-color-primary-light-8: #dbeafe;
-  --el-color-primary-dark-2: #1d4ed8;
+  --el-color-primary: #006170;
+  --el-color-primary-light-3: #26808d;
+  --el-color-primary-light-5: #4d9aa5;
+  --el-color-primary-light-7: #7bb5bd;
+  --el-color-primary-light-8: #a6d0d6;
+  --el-color-primary-light-9: #dbe9eb;
+  --el-color-primary-dark-2: #004d59;
   --el-border-radius-base: 10px;
   --el-border-color: var(--admin-border);
   --el-border-color-light: #eef0f3;
@@ -61,6 +63,8 @@ a {
  * LAYOUT & HELPERS
  * ------------------------------ */
 .page-container {
+  max-width: 1200px;
+  margin: 0 auto;
   padding: 24px;
 }
 

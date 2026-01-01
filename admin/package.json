@@ -12,6 +12,7 @@
     "@tiptap/starter-kit": "^2.4.0",
     "@tiptap/vue-3": "^2.4.0",
     "axios": "^1.6.8",
+    "@element-plus/icons-vue": "^2.3.1",
     "element-plus": "^2.7.1",
     "markdown-it": "^14.0.0",
     "pinia": "^2.1.7",

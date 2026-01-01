@@ -32,12 +32,28 @@ const handleLogout = async () => {
   <el-container class="admin-shell">
     <el-aside width="240px" class="admin-sidebar">
       <div class="admin-logo">Lab Admin</div>
-      <el-menu :default-active="active" router class="admin-menu" background-color="#0f172a" text-color="#e2e8f0" active-text-color="#ffffff">
-        <el-menu-item index="/">仪表盘</el-menu-item>
-        <el-menu-item index="/modules">模块管理</el-menu-item>
-        <el-menu-item index="/contents">内容管理</el-menu-item>
-        <el-menu-item index="/assets">资源管理</el-menu-item>
-        <el-menu-item index="/settings">站点设置</el-menu-item>
+      <el-menu
+        :default-active="active"
+        router
+        class="admin-menu"
+        background-color="#0f172a"
+        text-color="#e2e8f0"
+        active-text-color="var(--el-color-primary)"
+      >
+        <el-menu-item-group>
+          <template #title>仪表盘</template>
+          <el-menu-item index="/">仪表盘</el-menu-item>
+        </el-menu-item-group>
+        <el-sub-menu index="content">
+          <template #title>内容</template>
+          <el-menu-item index="/modules">模块管理</el-menu-item>
+          <el-menu-item index="/contents">内容管理</el-menu-item>
+          <el-menu-item index="/assets">资源管理</el-menu-item>
+        </el-sub-menu>
+        <el-sub-menu index="system">
+          <template #title>系统</template>
+          <el-menu-item index="/settings">站点设置</el-menu-item>
+        </el-sub-menu>
       </el-menu>
     </el-aside>
     <el-container>
@@ -77,6 +93,12 @@ const handleLogout = async () => {
   padding: 8px 0;
 }
 
+:deep(.admin-menu .el-menu-item-group__title) {
+  margin: 12px 16px 4px;
+  font-size: 12px;
+  color: rgba(226, 232, 240, 0.6);
+}
+
 :deep(.admin-menu .el-menu-item) {
   margin: 4px 12px;
   border-radius: 10px;
@@ -86,25 +108,27 @@ const handleLogout = async () => {
   position: relative;
 }
 
-:deep(.admin-menu .el-menu-item:hover) {
-  background-color: rgba(59, 130, 246, 0.16);
-  color: #ffffff;
+:deep(.admin-menu .el-sub-menu__title) {
+  margin: 4px 12px;
+  border-radius: 10px;
+  height: 44px;
+  line-height: 44px;
+  color: rgba(226, 232, 240, 0.9);
+}
+
+:deep(.admin-menu .el-menu-item:hover),
+:deep(.admin-menu .el-sub-menu__title:hover) {
+  background-color: var(--el-color-primary-light-8);
+  color: var(--el-color-primary);
 }
 
 :deep(.admin-menu .el-menu-item.is-active) {
-  background-color: rgba(37, 99, 235, 0.28);
-  color: #ffffff;
+  background-color: var(--el-color-primary-light-9);
+  color: var(--el-color-primary);
   font-weight: 600;
 }
 
-:deep(.admin-menu .el-menu-item.is-active::before) {
-  content: "";
-  position: absolute;
-  left: -12px;
-  top: 8px;
-  bottom: 8px;
-  width: 4px;
-  border-radius: 6px;
-  background-color: #60a5fa;
+:deep(.admin-menu .el-sub-menu.is-active > .el-sub-menu__title) {
+  color: var(--el-color-primary);
 }
 </style>
