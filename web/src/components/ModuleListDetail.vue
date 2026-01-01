@@ -13,6 +13,13 @@ const props = defineProps({
   }
 });
 
+const layoutType = computed(() => {
+  // 根据 slug 粗暴判断，或者更好的是在 module 表的 config_json 存一个 layout 字段
+  if (props.module.slug === 'people' || props.module.slug === 'team') return 'grid-people';
+  if (props.module.slug === 'publications') return 'list-dense';
+  return 'grid-cards'; // 默认图文卡片
+});
+
 const route = useRoute();
 const router = useRouter();
 
@@ -121,3 +128,58 @@ const updatePage = (nextPage) => {
     </div>
   </section>
 </template>
+
+<style scoped>
+/* ... 原有的样式 ... */
+
+/* 3. 在这里添加您询问的 CSS (Style) */
+
+/* 布局 A: 人物 (People) - 圆形头像网格 */
+/* 使用 :deep() 穿透到子组件 ContentList 内部 */
+.grid-people :deep(.content-list) {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); /* 响应式网格 */
+  gap: var(--space-6);
+}
+
+/* 针对人物卡片的特殊样式调整 (假设子组件用了 ContentCard) */
+.grid-people :deep(.content-card) {
+  align-items: center;
+  text-align: center;
+  padding: var(--space-6);
+}
+.grid-people :deep(.content-card__media) {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%; /* 圆形头像 */
+  margin-bottom: var(--space-4);
+  aspect-ratio: 1; /* 强制正方形 */
+}
+.grid-people :deep(.content-card__summary),
+.grid-people :deep(.content-card__footer) {
+  display: none; /* 人物列表通常不需要显示长摘要和日期 */
+}
+
+
+/* 布局 B: 论文 (Publications) - 紧凑列表 */
+.list-dense :deep(.content-card) {
+  flex-direction: row; /* 横向排列 */
+  align-items: baseline;
+  box-shadow: none;
+  border: none;
+  border-bottom: 1px solid var(--color-border);
+  border-radius: 0;
+  padding: var(--space-4) 0;
+  background: transparent;
+}
+.list-dense :deep(.content-card__media) {
+  display: none; /* 论文列表隐藏封面图 */
+}
+.list-dense :deep(.content-card__title) {
+  font-size: var(--font-size-md);
+  margin-bottom: var(--space-1);
+}
+.list-dense :deep(.content-card__body) {
+  padding: 0;
+}
+</style>

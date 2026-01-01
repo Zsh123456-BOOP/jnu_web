@@ -128,4 +128,36 @@
   --z-index-modal: 1050;
   --z-index-popover: 1060;
   --z-index-tooltip: 1070;
+  /* --- Refined Color Palette (更高级的蓝灰色调) --- */
+  --brand-hue: 220; /* 稍微偏冷一点的蓝 */
+  --brand-saturation: 90%;
+  --brand-lightness: 56%; /* 稍微提亮，增加活力 */
+  
+  --color-background: #f8fafc; /* 极淡的冷灰背景，比纯白更有质感 */
+  --color-surface: #ffffff;
+  --color-surface-soft: #f1f5f9;
+  
+  --color-text: #0f172a; /* 深邃的蓝黑，比纯黑柔和 */
+  --color-text-muted: #64748b;
+  --color-text-subtle: #94a3b8;
+
+  --color-border: #e2e8f0;
+  
+  /* --- Modern Spacing & Layout --- */
+  --container-max-width: 1280px; /* 稍微加宽，适应现代大屏 */
+
+  /* --- Modern Appearance (关键优化点) --- */
+  --radius-sm: 6px;
+  --radius-md: 12px; /* 更大的圆角，显得更友好 */
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+
+  /* 更有层次感的弥散阴影 */
+  --shadow-sm: 0 1px 2px 0 rgb(15 23 42 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(15 23 42 / 0.08), 0 2px 4px -2px rgb(15 23 42 / 0.08);
+  --shadow-lg: 0 10px 15px -3px rgb(15 23 42 / 0.08), 0 4px 6px -4px rgb(15 23 42 / 0.08);
+  --shadow-xl: 0 20px 25px -5px rgb(15 23 42 / 0.08), 0 8px 10px -6px rgb(15 23 42 / 0.08);
+  
+  /* 卡片悬停时的辉光效果 */
+  --shadow-hover: 0 20px 25px -5px rgb(15 23 42 / 0.1), 0 8px 10px -6px rgb(15 23 42 / 0.1);
 }
