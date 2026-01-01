@@ -46,3 +46,4 @@ pnpm --filter admin dev
 
 ## API proxy
 Vite dev servers proxy /api to http://localhost:3000. Admin uses axios with credentials enabled.
+# jnu_web
