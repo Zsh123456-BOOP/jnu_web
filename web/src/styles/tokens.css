@@ -39,14 +39,14 @@
   /* ------------------------------
    * COLOR
    * ------------------------------ */
-  --brand-hue: 217;
-  --brand-saturation: 86%;
-  --brand-lightness: 53%;
+  --brand-hue: 192;
+  --brand-saturation: 100%;
+  --brand-lightness: 22%;
   --brand-primary: hsl(var(--brand-hue) var(--brand-saturation) var(--brand-lightness)); /* #2563eb */
 
   --color-primary: var(--brand-primary);
   --color-primary-soft: hsl(var(--brand-hue) 90% 96%);
-  --color-primary-strong: hsl(var(--brand-hue) 82% 45%);
+  --color-primary-strong: hsl(var(--brand-hue) 85% 35%);
   --color-on-primary: #ffffff;
 
   --color-text: #111827;
@@ -129,9 +129,9 @@
   --z-index-popover: 1060;
   --z-index-tooltip: 1070;
   /* --- Refined Color Palette (更高级的蓝灰色调) --- */
-  --brand-hue: 220; /* 稍微偏冷一点的蓝 */
-  --brand-saturation: 90%;
-  --brand-lightness: 56%; /* 稍微提亮，增加活力 */
+  --brand-hue: 192; /* Dark teal */
+  --brand-saturation: 100%;
+  --brand-lightness: 22%;
   
   --color-background: #f8fafc; /* 极淡的冷灰背景，比纯白更有质感 */
   --color-surface: #ffffff;

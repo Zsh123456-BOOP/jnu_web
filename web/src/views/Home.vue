@@ -4,62 +4,50 @@ import { RouterLink } from 'vue-router';
 import { useSiteStore } from '../stores/site';
 import { getContents } from '../utils/api';
 import ContentList from '../components/ContentList.vue';
-import PageHeader from '../components/PageHeader.vue';
 
 const siteStore = useSiteStore();
 const latestContents = ref([]);
 const latestLoading = ref(false);
 const latestError = ref('');
 
-const modules = computed(() => siteStore.modules);
 const moduleMap = computed(() => siteStore.moduleMap);
-const navModules = computed(() => siteStore.navModules);
 const homeConfig = computed(() => siteStore.settingsSite?.value || {});
 
 const homeCards = computed(() => {
   const configured = homeConfig.value.homeModules;
-  if (Array.isArray(configured) && configured.length) {
-    return configured
-      .map((item) => {
-        if (typeof item === 'string') {
-          const module = moduleMap.value.get(item);
-          if (!module) return null;
-          return {
-            title: module.name,
-            description: module.config_json?.summary || module.type,
-            typeLabel: module.type || 'Module',
-            to: `/${module.slug}`,
-            external: false
-          };
-        }
-        if (item && typeof item === 'object') {
-          const slug = item.slug || item.moduleSlug;
-          const module = slug ? moduleMap.value.get(slug) : null;
-          const url = item.url || (slug ? `/${slug}` : null);
-          if (!url) return null;
-          return {
-            title: item.title || module?.name || slug || 'Untitled',
-            description: item.description || module?.config_json?.summary || module?.type || '',
-            typeLabel: module?.type || (item.url ? 'External' : 'Module'),
-            to: url,
-            external: Boolean(item.url)
-          };
-        }
-        return null;
-      })
-      .filter(Boolean);
+  if (!Array.isArray(configured) || configured.length === 0) {
+    return [];
   }
 
-  return [...modules.value]
-    .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
-    .slice(0, 6)
-    .map((module) => ({
-      title: module.name,
-      description: module.config_json?.summary || module.type,
-      typeLabel: module.type || 'Module',
-      to: `/${module.slug}`,
-      external: false
-    }));
+  return configured
+    .map((item) => {
+      if (typeof item === 'string') {
+        const module = moduleMap.value.get(item);
+        if (!module) return null;
+        return {
+          title: module.name,
+          description: module.config_json?.summary || module.type,
+          typeLabel: module.type || 'Module',
+          to: `/${module.slug}`,
+          external: false
+        };
+      }
+      if (item && typeof item === 'object') {
+        const slug = item.slug || item.moduleSlug;
+        const module = slug ? moduleMap.value.get(slug) : null;
+        const url = item.url || (slug ? `/${slug}` : null);
+        if (!url) return null;
+        return {
+          title: item.title || module?.name || slug || 'Untitled',
+          description: item.description || module?.config_json?.summary || module?.type || '',
+          typeLabel: module?.type || (item.url ? 'External' : 'Module'),
+          to: url,
+          external: Boolean(item.url)
+        };
+      }
+      return null;
+    })
+    .filter(Boolean);
 });
 
 const loadLatest = async () => {
@@ -118,18 +106,24 @@ onMounted(() => {
     </section>
 
     <div class="page-body container section">
-      <div class="section-header">
-        <h2>Featured Modules</h2>
-      </div>
-      <div class="grid sm:grid-cols-2 lg:grid-cols-3">
-        <article v-for="card in homeCards" :key="card.title" class="feature-card">
-          <h3 class="card-title">{{ card.title }}</h3>
-
-          <p>{{ card.description }}</p>
-
-          <span class="link-text">Explore &rarr;</span>
-          <RouterLink :to="card.to" class="card-link-overlay"></RouterLink>
-        </article>
+      <div class="home-layout-grid">
+        <div class="home-main">
+          <div class="section-header">
+            <h2>Latest updates</h2>
+          </div>
+          <div v-if="latestLoading" class="muted">Loading latest updates...</div>
+          <div v-else-if="latestError" class="muted">{{ latestError }}</div>
+          <ContentList v-else :items="latestContents" empty-text="No updates yet." />
+        </div>
+        <aside class="home-sidebar">
+          <div class="section-header">
+            <h3>Explore modules</h3>
+          </div>
+          <article v-for="card in homeCards" :key="card.title" class="sidebar-card">
+            <h4>{{ card.title }} &rarr;</h4>
+            <RouterLink :to="card.to" class="sidebar-link-overlay"></RouterLink>
+          </article>
+        </aside>
       </div>
     </div>
 
@@ -270,35 +264,41 @@ onMounted(() => {
   margin-top: var(--space-2);
 }
 
-/* Feature Cards (Modules) */
-.feature-card {
+/* Home Layout */
+.home-layout-grid {
+  display: grid;
+  gap: var(--space-8);
+}
+
+@media (min-width: 1024px) {
+  .home-layout-grid {
+    grid-template-columns: 2fr 1fr;
+    align-items: start;
+  }
+}
+
+/* Sidebar Cards */
+.sidebar-card {
   background: var(--color-surface);
-  padding: var(--space-6);
-  border-radius: var(--radius-lg);
   border: 1px solid var(--color-border);
-  position: relative;
-  transition: all 0.2s;
-}
-
-.feature-card:hover {
-  border-color: var(--color-primary);
-  box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
-}
-
-.icon-box {
-  width: 48px;
-  height: 48px;
-  background: var(--color-surface-soft);
   border-radius: var(--radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
+  padding: var(--space-4);
   margin-bottom: var(--space-4);
+  position: relative;
+  transition: border-color 0.2s ease;
 }
 
-.card-link-overlay {
+.sidebar-card:hover {
+  border-color: var(--color-primary);
+}
+
+.sidebar-card h4 {
+  font-size: var(--font-size-md);
+  color: var(--color-text);
+  margin: 0;
+}
+
+.sidebar-link-overlay {
   position: absolute;
   inset: 0;
   z-index: 1;
