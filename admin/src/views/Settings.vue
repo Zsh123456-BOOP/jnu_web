@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, reactive, ref } from 'vue';
-import { ElMessage } from 'element-plus';
+import { ElMessage, ElCard, ElForm, ElFormItem, ElInput, ElButton } from 'element-plus';
 import http, { getErrorMessage } from '../utils/http';
 
 const loading = ref(false);
@@ -58,21 +58,21 @@ onMounted(loadSettings);
 </script>
 
 <template>
-  <div>
-    <div class="page-title">
-      <h2>站点设置</h2>
-      <el-button type="primary" :loading="saving" @click="saveSettings">保存</el-button>
+  <div class="page-container">
+    <div class="page-header">
+      <h1>站点设置</h1>
+      <el-button type="primary" :loading="saving" @click="saveSettings">保存设置</el-button>
     </div>
 
-    <el-card v-loading="loading">
-      <el-form label-width="120px">
+    <el-card class="page-card" v-loading="loading">
+      <el-form label-position="top">
         <el-form-item label="站点名称">
-          <el-input v-model="form.siteName" />
+          <el-input v-model="form.siteName" placeholder="例如: My Research Lab" />
         </el-form-item>
-        <el-form-item label="Logo 文案">
-          <el-input v-model="form.logoText" />
+        <el-form-item label="Logo 副标题">
+          <el-input v-model="form.logoText" placeholder="例如: People, Papers, and Projects" />
         </el-form-item>
-        <el-form-item label="homeModules">
+        <el-form-item label="首页模块配置 (JSON)">
           <el-input
             v-model="form.homeModules"
             type="textarea"
@@ -80,8 +80,19 @@ onMounted(loadSettings);
             class="json-textarea"
             placeholder='示例：["home","about"]'
           />
+           <small>控制首页显示的模块卡片，值可以是模块 slug 字符串，或自定义对象。</small>
         </el-form-item>
       </el-form>
     </el-card>
   </div>
 </template>
+
+<style scoped>
+small {
+  color: var(--el-text-color-secondary);
+  font-size: 12px;
+  line-height: 1.5;
+  display: block;
+  margin-top: 4px;
+}
+</style>

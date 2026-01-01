@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, reactive, ref } from 'vue';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { ElMessage, ElMessageBox, ElCard, ElButton, ElTable, ElTableColumn, ElPagination, ElDialog, ElSwitch, ElInput, ElInputNumber, ElSelect, ElOption, ElForm, ElFormItem } from 'element-plus';
 import http, { getErrorMessage } from '../utils/http';
 
 const loading = ref(false);
@@ -73,22 +73,13 @@ const openEdit = (row) => {
   dialogVisible.value = true;
 };
 
-const parseConfig = () => {
-  if (!form.config_json) {
-    return null;
-  }
-  try {
-    return JSON.parse(form.config_json);
-  } catch {
-    ElMessage.error('config_json 必须是合法 JSON');
-    return null;
-  }
-};
-
 const saveModule = async () => {
   await formRef.value?.validate();
-  const configJson = parseConfig();
-  if (form.config_json && configJson === null) {
+  let configJson;
+  try {
+    configJson = form.config_json ? JSON.parse(form.config_json) : {};
+  } catch {
+    ElMessage.error('config_json 必须是合法 JSON');
     return;
   }
 
@@ -117,44 +108,29 @@ const saveModule = async () => {
   }
 };
 
-const updateModule = async (row, changes) => {
-  const payload = {
-    name: row.name,
-    slug: row.slug,
-    type: row.type,
-    enabled: Number(row.enabled) === 1 ? 1 : 0,
-    nav_visible: Number(row.nav_visible) === 1 ? 1 : 0,
-    sort_order: Number(row.sort_order) || 0,
-    config_json: row.config_json || {}
-  };
-  const merged = { ...payload, ...changes };
-  await http.put(`/admin/modules/${row.id}`, merged);
-};
-
-const toggleEnabled = async (row, key) => {
-  try {
-    await updateModule(row, { [key]: row[key] ? 1 : 0 });
+const updateModuleStatus = async (row, key, value) => {
+ try {
+    await http.put(`/admin/modules/${row.id}`, { ...row, [key]: value ? 1 : 0 });
     ElMessage.success('状态已更新');
     await loadModules();
   } catch (err) {
     ElMessage.error(getErrorMessage(err, '更新失败'));
+    // Revert switch state on failure
+    row[key] = !value;
   }
-};
+}
 
 const moveModule = async (row, direction) => {
   const list = [...modules.value].sort((a, b) => a.sort_order - b.sort_order || a.id - b.id);
   const index = list.findIndex((item) => item.id === row.id);
   const swapIndex = direction === 'up' ? index - 1 : index + 1;
-  if (swapIndex < 0 || swapIndex >= list.length) {
-    return;
-  }
+  if (swapIndex < 0 || swapIndex >= list.length) return;
+  
   const target = list[swapIndex];
-  const currentOrder = row.sort_order;
-  const targetOrder = target.sort_order;
-
   try {
-    await updateModule(row, { sort_order: targetOrder });
-    await updateModule(target, { sort_order: currentOrder });
+    // Swap sort_order values
+    await http.put(`/admin/modules/${row.id}`, { sort_order: target.sort_order });
+    await http.put(`/admin/modules/${target.id}`, { sort_order: row.sort_order });
     ElMessage.success('排序已更新');
     await loadModules();
   } catch (err) {
@@ -164,7 +140,7 @@ const moveModule = async (row, direction) => {
 
 const deleteModule = async (row) => {
   try {
-    await ElMessageBox.confirm(`确认删除模块「${row.name}」吗？`, '提示', {
+    await ElMessageBox.confirm(`确认删除模块「${row.name}」吗？这不会删除模块下的内容。`, '提示', {
       confirmButtonText: '删除',
       cancelButtonText: '取消',
       type: 'warning'
@@ -179,58 +155,85 @@ const deleteModule = async (row) => {
   }
 };
 
-const handlePageChange = (page) => {
-  pagination.page = page;
-  loadModules();
+const handleMoveCommand = (row, command) => {
+  if (command === 'up') {
+    moveModule(row, 'up');
+    return;
+  }
+  if (command === 'down') {
+    moveModule(row, 'down');
+  }
 };
 
 onMounted(loadModules);
 </script>
 
 <template>
-  <div>
-    <div class="page-title">
-      <h2>模块管理</h2>
-      <el-button type="primary" @click="openCreate">新增模块</el-button>
+    <div class="page-container">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">模块管理</h1>
+        <p class="page-subtitle">管理站点模块、导航展示与排序</p>
+      </div>
+      <div class="page-header__actions">
+        <el-button type="primary" @click="openCreate">新增模块</el-button>
+      </div>
     </div>
 
-    <el-table :data="modules" v-loading="loading" style="width: 100%;">
-      <el-table-column prop="name" label="名称" min-width="160" />
-      <el-table-column prop="slug" label="Slug" min-width="160" />
-      <el-table-column prop="type" label="类型" min-width="140" />
-      <el-table-column label="启用" width="100">
-        <template #default="{ row }">
-          <el-switch v-model="row.enabled" :active-value="1" :inactive-value="0" @change="() => toggleEnabled(row, 'enabled')" />
-        </template>
-      </el-table-column>
-      <el-table-column label="导航" width="100">
-        <template #default="{ row }">
-          <el-switch v-model="row.nav_visible" :active-value="1" :inactive-value="0" @change="() => toggleEnabled(row, 'nav_visible')" />
-        </template>
-      </el-table-column>
-      <el-table-column prop="sort_order" label="排序" width="120" />
-      <el-table-column label="操作" width="220">
-        <template #default="{ row }">
-          <el-button size="small" @click="moveModule(row, 'up')">上移</el-button>
-          <el-button size="small" @click="moveModule(row, 'down')">下移</el-button>
-          <el-button size="small" type="primary" @click="openEdit(row)">编辑</el-button>
-          <el-button size="small" type="danger" @click="deleteModule(row)">删除</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
+    <el-card class="page-card">
+      <el-table class="admin-table" size="small" :data="modules" v-loading="loading" row-key="id">
+        <el-table-column prop="name" label="名称" min-width="160" />
+        <el-table-column prop="slug" label="Slug" min-width="160" />
+        <el-table-column prop="type" label="类型" min-width="140" />
+        <el-table-column label="启用" width="100">
+          <template #default="{ row }">
+            <el-switch v-model="row.enabled" :active-value="1" :inactive-value="0" @change="(val) => updateModuleStatus(row, 'enabled', val)" />
+          </template>
+        </el-table-column>
+        <el-table-column label="导航" width="100">
+          <template #default="{ row }">
+            <el-switch v-model="row.nav_visible" :active-value="1" :inactive-value="0" @change="(val) => updateModuleStatus(row, 'nav_visible', val)" />
+          </template>
+        </el-table-column>
+        <el-table-column prop="sort_order" label="排序" width="120" sortable />
+        <el-table-column label="操作" width="220" fixed="right">
+          <template #default="{ row }">
+            <div class="table-actions">
+              <el-dropdown trigger="click" @command="(command) => handleMoveCommand(row, command)">
+                <el-button size="small" plain>排序</el-button>
+                <template #dropdown>
+                  <el-dropdown-menu>
+                    <el-dropdown-item command="up">上移</el-dropdown-item>
+                    <el-dropdown-item command="down">下移</el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
+              <el-button size="small" type="primary" @click="openEdit(row)">编辑</el-button>
+              <el-button size="small" type="danger" plain @click="deleteModule(row)">删除</el-button>
+            </div>
+          </template>
+        </el-table-column>
+      </el-table>
+       <div class="pagination-container">
+        <el-pagination
+          background
+          layout="total, prev, pager, next"
+          :current-page="pagination.page"
+          :page-size="pagination.pageSize"
+          :total="pagination.total"
+          @current-change="(p) => { pagination.page = p; loadModules(); }"
+        />
+      </div>
+    </el-card>
 
-    <div style="margin-top: 16px; display: flex; justify-content: flex-end;">
-      <el-pagination
-        layout="prev, pager, next"
-        :current-page="pagination.page"
-        :page-size="pagination.pageSize"
-        :total="pagination.total"
-        @current-change="handlePageChange"
-      />
-    </div>
-
-    <el-dialog v-model="dialogVisible" title="模块配置" width="640px" @closed="resetForm">
-      <el-form ref="formRef" :model="form" :rules="rules" label-width="120px">
+    <el-dialog
+      v-model="dialogVisible"
+      title="模块配置"
+      width="90vw"
+      class="responsive-dialog dialog--form"
+      @closed="resetForm"
+    >
+      <el-form ref="formRef" :model="form" :rules="rules" label-position="top">
         <el-form-item label="名称" prop="name">
           <el-input v-model="form.name" />
         </el-form-item>
@@ -238,25 +241,31 @@ onMounted(loadModules);
           <el-input v-model="form.slug" />
         </el-form-item>
         <el-form-item label="类型" prop="type">
-          <el-select v-model="form.type" style="width: 100%;">
-            <el-option label="SinglePage" value="SinglePage" />
-            <el-option label="ListDetail" value="ListDetail" />
-            <el-option label="ExternalLink" value="ExternalLink" />
-            <el-option label="LandingGrid" value="LandingGrid" />
-            <el-option label="Contact" value="Contact" />
+          <el-select v-model="form.type">
+            <el-option label="SinglePage (单个富文本页面)" value="SinglePage" />
+            <el-option label="ListDetail (内容列表)" value="ListDetail" />
+            <el-option label="ExternalLink (外部链接)" value="ExternalLink" />
+            <el-option label="LandingGrid (聚合落地页)" value="LandingGrid" />
+            <el-option label="Contact (联系方式页)" value="Contact" />
           </el-select>
         </el-form-item>
-        <el-form-item label="启用">
-          <el-switch v-model="form.enabled" />
-        </el-form-item>
-        <el-form-item label="导航可见">
-          <el-switch v-model="form.nav_visible" />
-        </el-form-item>
-        <el-form-item label="排序">
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="在网站中启用">
+              <el-switch v-model="form.enabled" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="在导航栏显示">
+              <el-switch v-model="form.nav_visible" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-form-item label="排序 (数字越小越靠前)">
           <el-input-number v-model="form.sort_order" :min="0" />
         </el-form-item>
-        <el-form-item label="config_json" class="json-textarea">
-          <el-input v-model="form.config_json" type="textarea" :rows="6" />
+        <el-form-item label="模块配置 (JSON)">
+          <el-input v-model="form.config_json" type="textarea" :rows="6" class="json-textarea" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -266,3 +275,11 @@ onMounted(loadModules);
     </el-dialog>
   </div>
 </template>
+
+<style scoped>
+.pagination-container {
+  padding-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+</style>

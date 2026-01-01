@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, reactive, ref } from 'vue';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { ElMessage, ElMessageBox, ElCard, ElButton, ElTable, ElTableColumn, ElPagination, ElUpload } from 'element-plus';
 import http, { getErrorMessage } from '../utils/http';
 import { formatDateTime, formatSize } from '../utils/format';
 
@@ -42,7 +42,9 @@ const handleUpload = async (options) => {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
     ElMessage.success('上传成功');
-    loadAssets();
+    // Go to first page to see the new upload
+    pagination.page = 1;
+    await loadAssets();
     options.onSuccess();
   } catch (err) {
     ElMessage.error(getErrorMessage(err, '上传失败'));
@@ -71,7 +73,7 @@ const deleteAsset = async (row) => {
     });
     await http.delete(`/admin/assets/${row.id}`);
     ElMessage.success('资源已删除');
-    loadAssets();
+    await loadAssets();
   } catch (err) {
     if (err !== 'cancel') {
       ElMessage.error(getErrorMessage(err, '删除失败'));
@@ -83,44 +85,55 @@ onMounted(loadAssets);
 </script>
 
 <template>
-  <div>
-    <div class="page-title">
-      <h2>资源管理</h2>
+  <div class="page-container">
+    <div class="page-header">
+      <h1>资源管理</h1>
       <el-upload :http-request="handleUpload" :show-file-list="false">
         <el-button type="primary" :loading="uploading">上传文件</el-button>
       </el-upload>
     </div>
 
-    <el-table :data="assets" v-loading="loading" style="width: 100%;">
-      <el-table-column prop="original_name" label="文件名" min-width="200" />
-      <el-table-column prop="mime" label="MIME" min-width="140" />
-      <el-table-column label="大小" width="120">
-        <template #default="{ row }">
-          {{ formatSize(row.size) }}
-        </template>
-      </el-table-column>
-      <el-table-column prop="relative_path" label="相对路径" min-width="220" />
-      <el-table-column label="创建时间" width="180">
-        <template #default="{ row }">
-          {{ formatDateTime(row.created_at) }}
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" width="200">
-        <template #default="{ row }">
-          <el-button size="small" @click="handleCopyUrl(row)">复制地址</el-button>
-          <el-button size="small" type="danger" @click="deleteAsset(row)">删除</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
+    <el-card class="page-card">
+      <el-table :data="assets" v-loading="loading">
+        <el-table-column prop="original_name" label="文件名" min-width="200" show-overflow-tooltip />
+        <el-table-column prop="mime" label="MIME 类型" min-width="140" />
+        <el-table-column label="大小" width="120">
+          <template #default="{ row }">
+            {{ formatSize(row.size) }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="relative_path" label="相对路径" min-width="220" show-overflow-tooltip />
+        <el-table-column label="创建时间" width="180">
+          <template #default="{ row }">
+            {{ formatDateTime(row.created_at) }}
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="200" fixed="right">
+          <template #default="{ row }">
+            <el-button size="small" @click="handleCopyUrl(row)">复制地址</el-button>
+            <el-button size="small" type="danger" @click="deleteAsset(row)">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
 
-    <div style="margin-top: 16px; display: flex; justify-content: flex-end;">
-      <el-pagination
-        layout="prev, pager, next"
-        :current-page="pagination.page"
-        :page-size="pagination.pageSize"
-        :total="pagination.total"
-        @current-change="handlePageChange"
-      />
-    </div>
+       <div class="pagination-container">
+        <el-pagination
+          background
+          layout="total, prev, pager, next"
+          :current-page="pagination.page"
+          :page-size="pagination.pageSize"
+          :total="pagination.total"
+          @current-change="handlePageChange"
+        />
+      </div>
+    </el-card>
   </div>
 </template>
+
+<style scoped>
+.pagination-container {
+  padding-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+</style>

@@ -1,9 +1,9 @@
 <script setup>
 import { onMounted, reactive, ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import http, { getErrorMessage } from '../utils/http';
 import { formatDateTime } from '../utils/format';
-import ContentEditor from '../components/ContentEditor.vue';
 import ContentRenderer from '../components/ContentRenderer.vue';
 
 const loading = ref(false);
@@ -22,8 +22,7 @@ const filters = reactive({
   keyword: ''
 });
 
-const editorVisible = ref(false);
-const editingContent = ref(null);
+const router = useRouter();
 
 const previewVisible = ref(false);
 const previewContent = ref(null);
@@ -82,19 +81,25 @@ const handleSearch = () => {
   loadContents();
 };
 
+const resetFilters = () => {
+  filters.moduleId = '';
+  filters.status = '';
+  filters.year = '';
+  filters.keyword = '';
+  handleSearch();
+};
+
 const handlePageChange = (page) => {
   pagination.page = page;
   loadContents();
 };
 
 const openCreate = () => {
-  editingContent.value = null;
-  editorVisible.value = true;
+  router.push({ name: 'content-create' });
 };
 
 const openEdit = (row) => {
-  editingContent.value = { ...row };
-  editorVisible.value = true;
+  router.push({ name: 'content-edit', params: { id: row.id } });
 };
 
 const openPreview = (row) => {
@@ -102,44 +107,40 @@ const openPreview = (row) => {
   previewVisible.value = true;
 };
 
-const buildPayloadFromRow = (row, overrides = {}) => ({
-  module_id: row.module_id,
-  title: row.title,
-  slug: row.slug,
-  status: row.status,
-  content_format: row.content_format,
-  content_md: row.content_format === 'markdown' ? row.content_md : null,
-  content_html: row.content_format === 'richtext' ? row.content_html : null,
-  summary: row.summary || null,
-  year: row.year || null,
-  tags_json: row.tags_json || [],
-  authors_json: row.authors_json || [],
-  meta_json: row.meta_json || {},
-  published_at: row.published_at || null,
-  ...overrides
-});
-
-const handleSave = async (payload, id) => {
-  try {
-    if (id) {
-      await http.put(`/admin/contents/${id}`, payload);
-      ElMessage.success('内容已更新');
-    } else {
-      await http.post('/admin/contents', payload);
-      ElMessage.success('内容已创建');
-    }
-    editorVisible.value = false;
-    loadContents();
-  } catch (err) {
-    ElMessage.error(getErrorMessage(err, '保存失败'));
+const normalizeOptional = (value) => {
+  if (value === null || value === undefined || value === '') {
+    return undefined;
   }
+  return value;
+};
+
+const buildContentPayload = (row, overrides = {}) => {
+  const format = row.content_format || 'markdown';
+  return {
+    module_id: Number(row.module_id),
+    title: String(row.title || '').trim(),
+    slug: String(row.slug || '').trim(),
+    status: row.status || 'draft',
+    content_format: format,
+    content_md: format === 'markdown' ? row.content_md : undefined,
+    content_html: format === 'richtext' ? row.content_html : undefined,
+    summary: normalizeOptional(row.summary),
+    cover_asset_id: normalizeOptional(row.cover_asset_id),
+    year: normalizeOptional(row.year),
+    tags_json: normalizeOptional(row.tags_json),
+    authors_json: normalizeOptional(row.authors_json),
+    meta_json: normalizeOptional(row.meta_json),
+    published_at: normalizeOptional(row.published_at),
+    ...overrides
+  };
 };
 
 const togglePublish = async (row) => {
   const nextStatus = row.status === 'published' ? 'draft' : 'published';
-  const publishedAt = nextStatus === 'published' ? new Date().toISOString() : null;
+  const publishedAt = nextStatus === 'published' ? new Date().toISOString() : undefined;
   try {
-    await http.put(`/admin/contents/${row.id}`, buildPayloadFromRow(row, { status: nextStatus, published_at: publishedAt }));
+    const payload = buildContentPayload(row, { status: nextStatus, published_at: publishedAt });
+    await http.put(`/admin/contents/${row.id}`, payload);
     ElMessage.success(nextStatus === 'published' ? '已发布' : '已撤回');
     loadContents();
   } catch (err) {
@@ -168,7 +169,7 @@ onMounted(async () => {
   try {
     await loadModules();
   } catch (err) {
-    ElMessage.error(getErrorMessage(err, '加载模块失败'));
+    ElMessage.error(getErrorMessage(err, '页面初始化失败'));
   }
   loadContents();
 });
@@ -176,73 +177,121 @@ onMounted(async () => {
 
 <template>
   <div>
-    <div class="page-title">
-      <h2>内容管理</h2>
-      <el-button type="primary" @click="openCreate">新增内容</el-button>
-    </div>
+    <el-card class="page-card">
+      <template #header>
+        <div class="card-header">
+          <h2>内容管理</h2>
+          <el-button type="primary" @click="openCreate">新增内容</el-button>
+        </div>
+      </template>
 
-    <el-card style="margin-bottom: 16px;">
-      <div class="filter-bar">
-        <el-select v-model="filters.moduleId" placeholder="模块" clearable style="width: 180px;">
-          <el-option v-for="item in modules" :key="item.id" :label="item.name" :value="item.id" />
-        </el-select>
-        <el-select v-model="filters.status" placeholder="状态" clearable style="width: 140px;">
-          <el-option label="draft" value="draft" />
-          <el-option label="published" value="published" />
-        </el-select>
-        <el-input v-model="filters.year" placeholder="年份" style="width: 120px;" />
-        <el-input v-model="filters.keyword" placeholder="关键词" style="width: 200px;" />
-        <el-button type="primary" @click="handleSearch">搜索</el-button>
-        <el-button @click="() => { filters.moduleId=''; filters.status=''; filters.year=''; filters.keyword=''; handleSearch(); }">
-          重置
-        </el-button>
+      <!-- Filters -->
+      <el-form :model="filters" inline class="filter-form filter-bar">
+        <el-form-item class="filter-item">
+          <el-select v-model="filters.moduleId" class="filter-control" placeholder="所有模块" clearable>
+            <el-option v-for="item in modules" :key="item.id" :label="item.name" :value="item.id" />
+          </el-select>
+        </el-form-item>
+        <el-form-item class="filter-item filter-item--sm">
+          <el-select v-model="filters.status" class="filter-control" placeholder="所有状态" clearable>
+            <el-option label="草稿" value="draft" />
+            <el-option label="已发布" value="published" />
+          </el-select>
+        </el-form-item>
+        <el-form-item class="filter-item filter-item--sm">
+          <el-input v-model.trim="filters.year" class="filter-control" placeholder="年份" clearable />
+        </el-form-item>
+        <el-form-item class="filter-item filter-item--lg">
+          <el-input v-model.trim="filters.keyword" class="filter-control" placeholder="关键词" clearable />
+        </el-form-item>
+        <div class="filter-actions">
+          <el-button type="primary" @click="handleSearch">搜索</el-button>
+          <el-button @click="resetFilters">重置</el-button>
+        </div>
+      </el-form>
+
+      <!-- Table -->
+      <el-table :data="contents" v-loading="loading" stripe>
+        <el-table-column prop="title" label="标题" min-width="200" show-overflow-tooltip />
+        <el-table-column prop="module_name" label="模块" width="140" />
+        <el-table-column prop="status" label="状态" width="100">
+           <template #default="{ row }">
+             <el-tag :type="row.status === 'published' ? 'success' : 'info'" size="small">{{ row.status }}</el-tag>
+           </template>
+        </el-table-column>
+        <el-table-column prop="year" label="年份" width="100" />
+        <el-table-column label="更新于" width="180">
+          <template #default="{ row }">
+            {{ formatDateTime(row.updated_at) }}
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="280" fixed="right">
+          <template #default="{ row }">
+            <el-button size="small" @click="openPreview(row)">预览</el-button>
+            <el-button size="small" type="primary" @click="openEdit(row)">编辑</el-button>
+            <el-button size="small" :type="row.status === 'published' ? 'warning' : 'success'" @click="togglePublish(row)">
+              {{ row.status === 'published' ? '撤回' : '发布' }}
+            </el-button>
+            <el-button size="small" type="danger" @click="deleteContent(row)">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <!-- Pagination -->
+      <div class="pagination-container">
+        <el-pagination
+          background
+          layout="total, prev, pager, next"
+          :current-page="pagination.page"
+          :page-size="pagination.pageSize"
+          :total="pagination.total"
+          @current-change="handlePageChange"
+        />
       </div>
     </el-card>
 
-    <el-table :data="contents" v-loading="loading" style="width: 100%;">
-      <el-table-column prop="title" label="标题" min-width="180" />
-      <el-table-column prop="module_name" label="模块" min-width="120" />
-      <el-table-column prop="status" label="状态" width="120" />
-      <el-table-column prop="year" label="年份" width="100" />
-      <el-table-column label="发布时间" width="180">
-        <template #default="{ row }">
-          {{ formatDateTime(row.published_at || row.created_at) }}
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" width="280">
-        <template #default="{ row }">
-          <el-button size="small" @click="openPreview(row)">预览</el-button>
-          <el-button size="small" type="primary" @click="openEdit(row)">编辑</el-button>
-          <el-button size="small" type="warning" @click="togglePublish(row)">
-            {{ row.status === 'published' ? '撤回' : '发布' }}
-          </el-button>
-          <el-button size="small" type="danger" @click="deleteContent(row)">删除</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
+    
 
-    <div style="margin-top: 16px; display: flex; justify-content: flex-end;">
-      <el-pagination
-        layout="prev, pager, next"
-        :current-page="pagination.page"
-        :page-size="pagination.pageSize"
-        :total="pagination.total"
-        @current-change="handlePageChange"
-      />
-    </div>
-
-    <ContentEditor
-      v-model="editorVisible"
-      :content="editingContent"
-      :modules="modules"
-      @save="handleSave"
-    />
-
-    <el-dialog v-model="previewVisible" title="内容预览" width="70%">
-      <div v-if="previewContent">
+    <el-dialog
+      v-model="previewVisible"
+      title="内容预览"
+      width="90vw"
+      top="5vh"
+      class="responsive-dialog dialog--preview"
+    >
+      <div v-if="previewContent" class="preview-dialog-content">
         <h3>{{ previewContent.title }}</h3>
         <ContentRenderer :content="previewContent" />
       </div>
     </el-dialog>
   </div>
 </template>
+
+<style scoped>
+.page-card {
+  --el-card-padding: 0;
+}
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--el-card-border-color);
+}
+.card-header h2 {
+  margin: 0;
+  font-size: 18px;
+}
+.filter-form {
+  padding: 16px 20px 0;
+}
+.pagination-container {
+  padding: 16px 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+.preview-dialog-content {
+  max-height: 75vh;
+  overflow-y: auto;
+}
+</style>

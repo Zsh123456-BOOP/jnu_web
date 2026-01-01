@@ -5,6 +5,8 @@ import 'element-plus/dist/index.css';
 import App from './App.vue';
 import router from './router';
 import './assets/main.css';
+import './styles/forms.css';
+import './styles/dialog.css';
 
 const app = createApp(App);
 

@@ -7,6 +7,7 @@ import ModulesView from '../views/Modules.vue';
 import ContentsView from '../views/Contents.vue';
 import AssetsView from '../views/Assets.vue';
 import SettingsView from '../views/Settings.vue';
+import ContentEditView from '../views/ContentEdit.vue';
 
 const routes = [
   { path: '/login', name: 'login', component: LoginView, meta: { public: true } },
@@ -17,6 +18,8 @@ const routes = [
       { path: '', name: 'dashboard', component: DashboardView },
       { path: 'modules', name: 'modules', component: ModulesView },
       { path: 'contents', name: 'contents', component: ContentsView },
+      { path: 'contents/create', name: 'content-create', component: ContentEditView },
+      { path: 'contents/edit/:id', name: 'content-edit', component: ContentEditView, props: true },
       { path: 'assets', name: 'assets', component: AssetsView },
       { path: 'settings', name: 'settings', component: SettingsView }
     ]

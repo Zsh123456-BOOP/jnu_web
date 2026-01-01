@@ -1,0 +1,191 @@
+/* ==========================================================================
+   COMPONENTS
+   ========================================================================== */
+
+/* ------------------------------
+ * BUTTON
+ * ------------------------------ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-full);
+  font-family: var(--font-sans);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-none);
+  border: var(--border-width-sm) solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn--primary {
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+  box-shadow: var(--shadow-md);
+}
+.btn--primary:hover:not(:disabled) {
+  background-color: var(--color-primary-strong);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-lg);
+}
+
+.btn--secondary {
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+.btn--secondary:hover:not(:disabled) {
+  background-color: var(--color-surface-soft);
+  border-color: var(--color-border-hover);
+  box-shadow: var(--shadow-md);
+}
+
+.btn--link {
+  background-color: transparent;
+  color: var(--color-primary);
+  padding: 0;
+  text-decoration: underline;
+}
+
+/* ------------------------------
+ * CARD
+ * ------------------------------ */
+.card,
+.surface-card {
+  background-color: var(--color-surface);
+  border: var(--border-width-sm) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.card:hover,
+.surface-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-border-hover);
+}
+
+.card--interactive {
+  cursor: pointer;
+}
+
+.card--interactive:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--color-primary-soft);
+}
+
+.card--compact,
+.surface-card--compact {
+  padding: var(--space-4);
+}
+
+/* ------------------------------
+ * FORM ELEMENTS
+ * ------------------------------ */
+.form-input {
+  display: block;
+  width: 100%;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-sm);
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  border: var(--border-width-sm) solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-input:focus,
+.form-input:focus-visible {
+  outline: none;
+  border-color: var(--color-border-focus);
+  box-shadow: var(--shadow-focus-ring);
+}
+
+.form-group {
+  margin-bottom: var(--space-4);
+}
+
+/* ------------------------------
+ * BADGE / PILL
+ * ------------------------------ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.badge--neutral {
+  background: var(--color-surface-soft);
+  color: var(--color-text-muted);
+  border: var(--border-width-sm) solid var(--color-border);
+}
+
+.card__badge {
+  margin-bottom: var(--space-3);
+}
+
+.muted {
+  color: var(--color-text-muted);
+}
+
+/* ------------------------------
+ * EMPTY STATE
+ * ------------------------------ */
+.empty-state {
+  padding: var(--space-8);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-soft);
+  border: var(--border-width-md) dashed var(--color-border);
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.table-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.table-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: var(--border-width-sm) solid var(--color-border);
+  background-color: var(--color-surface);
+}
+
+.table-row:hover {
+  border-color: var(--color-border-hover);
+}
+
+/* ------------------------------
+ * PAGINATION
+ * ------------------------------ */
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  justify-content: flex-end;
+  margin-top: var(--space-6);
+}

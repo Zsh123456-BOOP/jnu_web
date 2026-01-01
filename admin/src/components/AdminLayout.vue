@@ -56,8 +56,55 @@ const handleLogout = async () => {
 </template>
 
 <style scoped>
+.admin-sidebar {
+  background-color: #0f172a;
+  color: #e2e8f0;
+}
+
+.admin-logo {
+  padding: 20px 16px 12px;
+  font-weight: 600;
+  color: #f8fafc;
+  letter-spacing: 0.2px;
+}
+
 .admin-menu {
   border-right: none;
   background: transparent;
+}
+
+:deep(.admin-menu) {
+  padding: 8px 0;
+}
+
+:deep(.admin-menu .el-menu-item) {
+  margin: 4px 12px;
+  border-radius: 10px;
+  height: 44px;
+  line-height: 44px;
+  color: rgba(226, 232, 240, 0.9);
+  position: relative;
+}
+
+:deep(.admin-menu .el-menu-item:hover) {
+  background-color: rgba(59, 130, 246, 0.16);
+  color: #ffffff;
+}
+
+:deep(.admin-menu .el-menu-item.is-active) {
+  background-color: rgba(37, 99, 235, 0.28);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+:deep(.admin-menu .el-menu-item.is-active::before) {
+  content: "";
+  position: absolute;
+  left: -12px;
+  top: 8px;
+  bottom: 8px;
+  width: 4px;
+  border-radius: 6px;
+  background-color: #60a5fa;
 }
 </style>

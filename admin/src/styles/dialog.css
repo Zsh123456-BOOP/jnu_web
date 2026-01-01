@@ -1,0 +1,25 @@
+/* ==========================================================================
+   Admin dialog helpers
+   ========================================================================== */
+
+.responsive-dialog {
+  width: 90vw;
+  max-width: 720px;
+}
+
+.responsive-dialog.dialog--form {
+  max-width: 720px;
+}
+
+.responsive-dialog.dialog--wide {
+  max-width: 860px;
+}
+
+.responsive-dialog.dialog--preview {
+  max-width: 1100px;
+}
+
+.responsive-dialog .el-dialog__body {
+  max-height: calc(100vh - 200px);
+  overflow: auto;
+}

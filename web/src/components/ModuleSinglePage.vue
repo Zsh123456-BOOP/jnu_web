@@ -2,6 +2,7 @@
 import { computed, ref, watch } from 'vue';
 import { getContentBySlug, getContents } from '../utils/api';
 import ContentRenderer from './ContentRenderer.vue';
+import PageHeader from './PageHeader.vue';
 
 const props = defineProps({
   module: {
@@ -18,6 +19,7 @@ const defaultSlug = computed(() => {
   const config = props.module?.config_json || {};
   return config.defaultSlug || config.default_slug || '';
 });
+const subtitle = computed(() => props.module?.config_json?.summary || '');
 
 const loadContent = async () => {
   if (!props.module?.slug) {
@@ -59,15 +61,20 @@ watch(
 </script>
 
 <template>
-  <section class="surface-card">
-    <h2>{{ module.name }}</h2>
-    <p class="muted">{{ module.config_json?.summary || module.type }}</p>
-    <div v-if="loading" class="muted">Loading content...</div>
-    <div v-else-if="error" class="muted">{{ error }}</div>
-    <div v-else-if="!content" class="empty">No published content yet.</div>
-    <div v-else>
-      <h3>{{ content.title }}</h3>
-      <ContentRenderer :content="content" />
+  <section class="page">
+    <div class="container">
+      <PageHeader :title="module.name" :subtitle="subtitle" />
+
+      <div class="page-body">
+        <div class="card">
+          <div v-if="loading" class="muted">Loading content...</div>
+          <div v-else-if="error" class="muted">{{ error }}</div>
+          <div v-else-if="!content" class="empty-state">No published content yet.</div>
+          <div v-else>
+            <ContentRenderer :content="content" />
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 </template>

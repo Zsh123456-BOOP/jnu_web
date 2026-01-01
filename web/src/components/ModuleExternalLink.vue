@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue';
+import PageHeader from './PageHeader.vue';
 
 const props = defineProps({
   module: {
@@ -13,12 +14,23 @@ const description = computed(() => props.module?.config_json?.description || '')
 </script>
 
 <template>
-  <section class="surface-card">
-    <h2>{{ module.name }}</h2>
-    <p class="muted">{{ description || 'This module points to an external resource.' }}</p>
-    <div v-if="url">
-      <a class="link-button" :href="url" target="_blank" rel="noreferrer">Open external site</a>
+  <section class="page">
+    <div class="container">
+      <PageHeader
+        :title="module.name"
+        :subtitle="description || 'This module points to an external resource.'"
+      />
+
+      <div class="page-body">
+        <div class="card">
+          <div v-if="url">
+            <a class="btn btn--primary" :href="url" target="_blank" rel="noreferrer">
+              Open external site
+            </a>
+          </div>
+          <div v-else class="empty-state">No external URL configured for this module.</div>
+        </div>
+      </div>
     </div>
-    <div v-else class="empty">No external URL configured for this module.</div>
   </section>
 </template>

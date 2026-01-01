@@ -2,6 +2,7 @@
 import { computed, ref, watch } from 'vue';
 import { getContents } from '../utils/api';
 import ContentRenderer from './ContentRenderer.vue';
+import PageHeader from './PageHeader.vue';
 
 const props = defineProps({
   module: {
@@ -58,36 +59,42 @@ watch(
 </script>
 
 <template>
-  <section class="surface-card">
-    <h2>{{ module.name }}</h2>
-    <p class="muted">{{ module.config_json?.summary || 'Get in touch with the lab.' }}</p>
+  <section class="page">
+    <div class="container">
+      <PageHeader
+        :title="module.name"
+        :subtitle="module.config_json?.summary || 'Get in touch with the lab.'"
+      />
 
-    <div v-if="loading" class="muted">Loading contact details...</div>
-    <div v-else-if="error" class="muted">{{ error }}</div>
-    <div v-else-if="!content" class="empty">Contact details will be available soon.</div>
-    <div v-else class="grid cols-2">
-      <div class="surface-card" style="padding: 16px;">
-        <h3>Contact details</h3>
-        <div v-if="!contactFields.length" class="muted">No structured contact fields yet.</div>
-        <div v-else class="table-list">
-          <div v-for="field in contactFields" :key="field.label" class="table-row">
-            <strong>{{ field.label }}</strong>
-            <span v-if="field.type === 'email'">
-              <a :href="`mailto:${field.value}`">{{ field.value }}</a>
-            </span>
-            <span v-else-if="field.type === 'phone'">
-              <a :href="`tel:${field.value}`">{{ field.value }}</a>
-            </span>
-            <span v-else-if="field.type === 'url'">
-              <a :href="field.value" target="_blank" rel="noreferrer">{{ field.value }}</a>
-            </span>
-            <span v-else>{{ field.value }}</span>
+      <div class="page-body">
+        <div v-if="loading" class="card muted">Loading contact details...</div>
+        <div v-else-if="error" class="card muted">{{ error }}</div>
+        <div v-else-if="!content" class="empty-state">Contact details will be available soon.</div>
+        <div v-else class="grid md:grid-cols-2">
+          <div class="card card--compact">
+            <h3>Contact details</h3>
+            <div v-if="!contactFields.length" class="muted">No structured contact fields yet.</div>
+            <div v-else class="table-list">
+              <div v-for="field in contactFields" :key="field.label" class="table-row">
+                <strong>{{ field.label }}</strong>
+                <span v-if="field.type === 'email'">
+                  <a :href="`mailto:${field.value}`">{{ field.value }}</a>
+                </span>
+                <span v-else-if="field.type === 'phone'">
+                  <a :href="`tel:${field.value}`">{{ field.value }}</a>
+                </span>
+                <span v-else-if="field.type === 'url'">
+                  <a :href="field.value" target="_blank" rel="noreferrer">{{ field.value }}</a>
+                </span>
+                <span v-else>{{ field.value }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="card card--compact">
+            <h3>Message from the lab</h3>
+            <ContentRenderer :content="content" />
           </div>
         </div>
-      </div>
-      <div class="surface-card" style="padding: 16px;">
-        <h3>Message from the lab</h3>
-        <ContentRenderer :content="content" />
       </div>
     </div>
   </section>

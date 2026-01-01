@@ -41,12 +41,33 @@ const goNext = () => {
 
 <template>
   <div class="pagination">
-    <button class="secondary" type="button" :disabled="!canPrev" @click="goPrev">
+    <button class="btn btn--secondary" type="button" :disabled="!canPrev" @click="goPrev">
       Previous
     </button>
-    <span class="muted">Page {{ page }} / {{ totalPages }}</span>
-    <button class="secondary" type="button" :disabled="!canNext" @click="goNext">
+    <span class="pagination__info">Page {{ page }} / {{ totalPages }}</span>
+    <button class="btn btn--secondary" type="button" :disabled="!canNext" @click="goNext">
       Next
     </button>
   </div>
 </template>
+
+<style scoped>
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+
+.pagination__info {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-medium);
+}
+
+.btn {
+  /* Make pagination buttons a bit smaller */
+  padding: var(--space-2) var(--space-4);
+}
+</style>

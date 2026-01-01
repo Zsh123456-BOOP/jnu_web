@@ -42,6 +42,25 @@ const form = reactive({
 const isEdit = computed(() => Boolean(props.content && props.content.id));
 const drawerTitle = computed(() => (isEdit.value ? '编辑内容' : '新增内容'));
 
+const stringifyList = (value) => {
+  if (!Array.isArray(value)) {
+    return '';
+  }
+  return value
+    .map((item) => {
+      if (typeof item === 'string') {
+        return item;
+      }
+      if (item && typeof item === 'object') {
+        return item.name || item.label || item.value || '';
+      }
+      return '';
+    })
+    .map((item) => String(item).trim())
+    .filter(Boolean)
+    .join(', ');
+};
+
 const normalizeList = (value) => {
   if (!value) {
     return [];
@@ -59,8 +78,8 @@ const applyContent = (content) => {
   form.status = content?.status || 'draft';
   form.year = content?.year || '';
   form.summary = content?.summary || '';
-  form.tags = Array.isArray(content?.tags_json) ? content.tags_json.join(', ') : '';
-  form.authors = Array.isArray(content?.authors_json) ? content.authors_json.join(', ') : '';
+  form.tags = stringifyList(content?.tags_json);
+  form.authors = stringifyList(content?.authors_json);
   form.content_format = content?.content_format || 'markdown';
   form.content_md = content?.content_md || '';
   form.content_html = content?.content_html || '';
@@ -125,14 +144,14 @@ const handleSave = async () => {
     slug: form.slug.trim(),
     status: form.status,
     content_format: form.content_format,
-    content_md: form.content_format === 'markdown' ? form.content_md : null,
-    content_html: form.content_format === 'richtext' ? form.content_html : null,
-    summary: form.summary.trim() || null,
-    year: form.year ? Number(form.year) : null,
+    content_md: form.content_format === 'markdown' ? form.content_md : undefined,
+    content_html: form.content_format === 'richtext' ? form.content_html : undefined,
+    summary: form.summary.trim() || undefined,
+    year: form.year ? Number(form.year) : undefined,
     tags_json: normalizeList(form.tags),
     authors_json: normalizeList(form.authors),
     meta_json: metaJson,
-    published_at: form.published_at || null
+    published_at: form.published_at || undefined
   };
 
   emit('save', payload, props.content?.id || null);
@@ -173,8 +192,8 @@ const handleSave = async () => {
       </el-form-item>
       <el-form-item label="格式" prop="content_format">
         <el-radio-group v-model="form.content_format">
-          <el-radio label="markdown">Markdown</el-radio>
-          <el-radio label="richtext">富文本</el-radio>
+          <el-radio value="markdown">Markdown</el-radio>
+          <el-radio value="richtext">富文本</el-radio>
         </el-radio-group>
       </el-form-item>
 

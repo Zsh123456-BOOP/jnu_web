@@ -71,36 +71,56 @@ const updatePage = (nextPage) => {
 </script>
 
 <template>
-  <section class="surface-card">
-    <h2>Search</h2>
-    <p class="muted">Search across all published content.</p>
+  <main class="container section">
+    <div class="section-header">
+      <h2>Search</h2>
+      <p class="section-subtitle">Search across all published content.</p>
+    </div>
 
-    <div class="surface-card" style="padding: 16px;">
-      <label class="muted" for="search-input">Keyword</label>
-      <div style="display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap;">
+    <div class="card">
+      <form @submit.prevent="onSearch" class="search-form">
+        <label for="search-input" class="visually-hidden">Keyword</label>
         <input
           id="search-input"
           v-model="keyword"
           type="text"
+          class="form-input"
           placeholder="Try people, publications, or projects"
-          style="flex: 1; min-width: 220px;"
         />
-        <button type="button" @click="onSearch">Search</button>
-      </div>
+        <button type="submit" class="btn btn--primary">Search</button>
+      </form>
     </div>
 
-    <div v-if="!keyword" class="empty" style="margin-top: 20px;">
-      Enter a keyword to begin searching.
+    <div class="search-results">
+      <div v-if="!keyword" class="empty-state">
+        Enter a keyword to begin searching.
+      </div>
+      <div v-else-if="loading" class="card">Searching...</div>
+      <div v-else-if="error" class="card empty-state">{{ error }}</div>
+      <ContentList v-else :items="items" :show-module="true" empty-text="No results found." />
+      <Pagination
+        v-if="keyword && total > pageSize"
+        :page="page"
+        :page-size="pageSize"
+        :total="total"
+        @update:page="updatePage"
+      />
     </div>
-    <div v-else-if="loading" class="muted">Searching...</div>
-    <div v-else-if="error" class="muted">{{ error }}</div>
-    <ContentList v-else :items="items" :show-module="true" empty-text="No results found." />
-    <Pagination
-      v-if="keyword && total > pageSize"
-      :page="page"
-      :page-size="pageSize"
-      :total="total"
-      @update:page="updatePage"
-    />
-  </section>
+  </main>
 </template>
+
+<style scoped>
+.search-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.search-form .form-input {
+  flex: 1 1 300px;
+}
+
+.search-results {
+  margin-top: var(--space-8);
+}
+</style>

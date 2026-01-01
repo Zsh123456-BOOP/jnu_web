@@ -1,7 +1,7 @@
 <script setup>
 import { reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { ElMessage } from 'element-plus';
+import { ElMessage, ElCard, ElForm, ElFormItem, ElInput, ElButton } from 'element-plus';
 import { useAuthStore } from '../stores/auth';
 import { getErrorMessage } from '../utils/http';
 
@@ -23,7 +23,8 @@ const rules = {
 const loading = ref(false);
 
 const handleLogin = async () => {
-  await formRef.value?.validate();
+  if (!formRef.value) return;
+  await formRef.value.validate();
   loading.value = true;
   try {
     await authStore.login({ username: form.username, password: form.password });
@@ -38,22 +39,64 @@ const handleLogin = async () => {
 </script>
 
 <template>
-  <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px;">
-    <el-card style="width: 360px;">
+  <div class="login-container">
+    <el-card class="login-card">
       <template #header>
-        <strong>管理员登录</strong>
+        <div class="card-header">
+          <strong>管理员登录</strong>
+        </div>
       </template>
-      <el-form ref="formRef" :model="form" :rules="rules" label-position="top">
+      <el-form ref="formRef" :model="form" :rules="rules" label-position="top" @submit.prevent="handleLogin">
         <el-form-item label="用户名" prop="username">
-          <el-input v-model="form.username" autocomplete="username" />
+          <el-input v-model="form.username" autocomplete="username" size="large" placeholder="Username" />
         </el-form-item>
         <el-form-item label="密码" prop="password">
-          <el-input v-model="form.password" type="password" autocomplete="current-password" show-password />
+          <el-input
+            v-model="form.password"
+            type="password"
+            autocomplete="current-password"
+            show-password
+            size="large"
+            placeholder="Password"
+          />
         </el-form-item>
-        <el-button type="primary" :loading="loading" style="width: 100%;" @click="handleLogin">
-          登录
-        </el-button>
+        <el-form-item>
+          <el-button
+            class="login-button"
+            type="primary"
+            size="large"
+            :loading="loading"
+            native-type="submit"
+          >
+            登录
+          </el-button>
+        </el-form-item>
       </el-form>
     </el-card>
   </div>
 </template>
+
+<style scoped>
+.login-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #f0f2f5;
+  padding: 16px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 380px;
+}
+
+.card-header {
+  text-align: center;
+  font-size: 20px;
+}
+
+.login-button {
+  width: 100%;
+}
+</style>

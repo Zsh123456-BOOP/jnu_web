@@ -1,15 +1,55 @@
+/* ==========================================================================
+   Admin Global Styles
+   ========================================================================== */
+
+/* ------------------------------
+ * BASE
+ * ------------------------------ */
 :root {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  color: #0f172a;
-  background-color: #f8fafc;
+  color: #111827;
+  background-color: #f7f8fa;
+  --admin-bg: #f7f8fa;
+  --admin-card: #ffffff;
+  --admin-border: #e6e8ec;
+  --admin-text: #111827;
+  --admin-text-muted: #6b7280;
+
+  --el-color-primary: #2563eb;
+  --el-color-primary-light-3: #60a5fa;
+  --el-color-primary-light-5: #93c5fd;
+  --el-color-primary-light-7: #bfdbfe;
+  --el-color-primary-light-8: #dbeafe;
+  --el-color-primary-dark-2: #1d4ed8;
+  --el-border-radius-base: 10px;
+  --el-border-color: var(--admin-border);
+  --el-border-color-light: #eef0f3;
+  --el-border-color-lighter: #f2f4f7;
+  --el-bg-color: var(--admin-card);
+  --el-bg-color-page: var(--admin-bg);
+  --el-fill-color-blank: var(--admin-card);
+  --el-fill-color-light: #f5f6f8;
+  --el-text-color-primary: var(--admin-text);
+  --el-text-color-regular: #374151;
+  --el-text-color-secondary: var(--admin-text-muted);
+  --el-text-color-placeholder: #9ca3af;
+  --el-mask-color: rgba(17, 24, 39, 0.4);
 }
 
-* {
+*, *::before, *::after {
   box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
 }
 
 body {
   margin: 0;
+  font-size: 14px;
+  background-color: var(--admin-bg);
 }
 
 a {
@@ -17,110 +57,130 @@ a {
   text-decoration: none;
 }
 
+/* ------------------------------
+ * LAYOUT & HELPERS
+ * ------------------------------ */
+.page-container {
+  padding: 24px;
+}
+
 .admin-shell {
   min-height: 100vh;
 }
 
-.admin-logo {
-  font-weight: 700;
-  font-size: 18px;
-  color: #e2e8f0;
-  margin-bottom: 16px;
-}
-
 .admin-sidebar {
-  background: #0f172a;
-  color: #e2e8f0;
+  min-height: 100vh;
 }
 
-.admin-header {
+.page-header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  padding: 0 20px;
-  background: #ffffff;
-  border-bottom: 1px solid #e2e8f0;
+  align-items: center;
+  margin-bottom: 24px;
+  gap: 16px;
 }
-
-.admin-header .meta {
+.page-header h1 {
+  margin: 0;
+  font-size: 22px;
+  color: var(--admin-text);
+  font-weight: 600;
+}
+.page-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--admin-text);
+}
+.page-subtitle {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: var(--admin-text-muted);
+}
+.page-header__actions {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.content-wrap {
-  padding: 24px;
+.admin-table {
+  --el-table-header-bg-color: #f5f6f8;
+  --el-table-header-text-color: #111827;
+  --el-table-border-color: #e6e8ec;
+  --el-table-row-hover-bg-color: #f3f6ff;
+  font-size: 13px;
 }
 
-.card-grid {
-  display: grid;
-  gap: 16px;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+.admin-table .el-table__header th {
+  font-weight: 600;
 }
 
-.page-title {
+.admin-table .el-table__cell {
+  padding: 8px 12px;
+}
+
+.table-actions {
   display: flex;
+  flex-wrap: nowrap;
+  gap: 6px;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 16px;
+}
+.table-actions .el-button + .el-button {
+  margin-left: 0;
+}
+.table-actions .el-dropdown {
+  display: inline-flex;
 }
 
-.page-title h2 {
-  margin: 0;
+.page-card {
+  --el-card-padding: 24px;
+}
+
+.mb-4 {
+  margin-bottom: 20px;
+}
+
+/* ------------------------------
+ * FORM STYLING FIXES
+ * ------------------------------ */
+
+/* 
+ * Fix for "squeezed" form elements.
+ * In a standard (non-inline) form, make select, input, etc. take up 100% width.
+ * This is a common need for clear and responsive vertical forms.
+*/
+.el-form:not(.el-form--inline) .el-form-item__content .el-select,
+.el-form:not(.el-form--inline) .el-form-item__content .el-input-number {
+  width: 100%;
+}
+
+/* For filter bars, allow elements to have natural width */
+.el-form--inline .el-form-item {
+  margin-right: 10px;
 }
 
 .json-textarea textarea {
-  font-family: "Cascadia Code", Consolas, monospace;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  font-size: 13px;
 }
 
-.editor-split {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
 
-.editor-panel {
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 12px;
-  background: #ffffff;
-}
-
-.preview-panel {
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 12px;
-  background: #f8fafc;
-}
-
-.content-preview {
+/* ------------------------------
+ * ADMIN PROSE (for previews)
+ * Re-scoping of the styles from ContentEdit.vue for global use
+ * ------------------------------ */
+.admin-prose {
   line-height: 1.7;
+  color: var(--el-text-color-primary);
 }
-
-.content-preview h1,
-.content-preview h2,
-.content-preview h3 {
-  margin-top: 1.2rem;
-}
-
-.content-preview pre {
-  background: #0f172a;
-  color: #e2e8f0;
-  padding: 12px;
-  border-radius: 6px;
-  overflow-x: auto;
-}
-
-.tiptap {
-  min-height: 220px;
-  padding: 8px;
-  outline: none;
-}
-
-.filter-bar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  align-items: center;
-}
+.admin-prose h1, .admin-prose h2, .admin-prose h3 { margin-top: 1.5rem; margin-bottom: 1rem; font-weight: 600; }
+.admin-prose p { margin-bottom: 1rem; }
+.admin-prose a { color: var(--el-color-primary); text-decoration: none; }
+.admin-prose a:hover { text-decoration: underline; }
+.admin-prose pre { background: #f4f4f5; padding: 16px; border-radius: 4px; overflow-x: auto; }
+.admin-prose code { font-family: monospace; background: #f4f4f5; padding: 2px 4px; border-radius: 4px; }
+.admin-prose pre > code { background: transparent; padding: 0; }
+.admin-prose blockquote { margin: 16px 0; padding: 12px 16px; border-left: 3px solid var(--el-color-primary); background: #ecf5ff; }
+.admin-prose table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+.admin-prose th, .admin-prose td { border: 1px solid #e0e0e0; padding: 8px 12px; }
+.admin-prose th { background-color: #fafafa; }
+.admin-prose ul, .admin-prose ol { padding-left: 2rem; }

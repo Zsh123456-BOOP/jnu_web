@@ -10,6 +10,7 @@ import { errorHandler, notFoundHandler } from './middleware/error.js';
 const app = express();
 
 app.disable('x-powered-by');
+app.disable('etag');
 if (config.env === 'production') {
   app.set('trust proxy', 1);
 }

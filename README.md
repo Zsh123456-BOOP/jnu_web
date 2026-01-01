@@ -19,6 +19,10 @@ Builds web and admin packages only.
 - pnpm -C web dev
 - pnpm -C admin dev
 
+pnpm --filter server dev
+pnpm --filter web dev
+pnpm --filter admin dev
+
 ## Ports
 - web: http://localhost:5173
 - admin: http://localhost:5174

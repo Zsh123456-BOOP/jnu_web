@@ -1,0 +1,61 @@
+/* ==========================================================================
+   Admin form helpers
+   ========================================================================== */
+
+/* Filter bar layout for table toolbars */
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+  align-items: flex-end;
+  width: 100%;
+}
+
+.filter-bar .el-form-item {
+  margin-right: 0;
+  margin-bottom: 0;
+}
+
+.filter-bar .el-form-item__content {
+  width: 100%;
+}
+
+.filter-item {
+  flex: 1 1 200px;
+  min-width: 180px;
+}
+
+.filter-item--sm {
+  min-width: 140px;
+}
+
+.filter-item--lg {
+  min-width: 260px;
+}
+
+.filter-control {
+  width: 100%;
+}
+
+.filter-actions {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Content edit sidebar controls */
+.content-sidebar .el-select,
+.content-sidebar .el-input,
+.content-sidebar .el-input-number,
+.content-sidebar .el-date-editor,
+.content-sidebar .el-textarea {
+  width: 100%;
+  min-width: 220px;
+}
+
+.select-ellipsis .el-input__inner {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
