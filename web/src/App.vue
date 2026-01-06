@@ -15,9 +15,11 @@ onMounted(() => {
 <template>
   <div class="app-shell">
     <SiteNav />
-    <main class="app-main">
-      <RouterView />
-    </main>
-    <SiteFooter />
+    <div class="app-content">
+      <main class="app-main">
+        <RouterView />
+      </main>
+      <SiteFooter />
+    </div>
   </div>
 </template>

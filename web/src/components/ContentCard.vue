@@ -151,11 +151,11 @@ const tags = computed(() => {
 }
 
 .tag {
-  background: var(--color-surface-soft);
-  color: var(--color-text-muted);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
   font-size: 0.75rem;
   padding: 2px 8px;
-  border-radius: var(--radius-full);
+  border-radius: 12px;
   font-weight: 500;
 }
 </style>

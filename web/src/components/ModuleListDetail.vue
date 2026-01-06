@@ -97,7 +97,7 @@ const updatePage = (nextPage) => {
 
       <div class="page-body">
         <div class="card page-search">
-          <label class="muted" for="module-search">Search within this module</label>
+          <label class="muted" for="module-search">Search / Filter</label>
           <div class="page-search__row">
             <input
               id="module-search"
@@ -138,7 +138,7 @@ const updatePage = (nextPage) => {
 /* 使用 :deep() 穿透到子组件 ContentList 内部 */
 .grid-people :deep(.content-list) {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); /* 响应式网格 */
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* 响应式网格 */
   gap: var(--space-6);
 }
 
@@ -162,6 +162,12 @@ const updatePage = (nextPage) => {
 
 
 /* 布局 B: 论文 (Publications) - 紧凑列表 */
+.list-dense :deep(.content-list) {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
 .list-dense :deep(.content-card) {
   flex-direction: row; /* 横向排列 */
   align-items: baseline;
