@@ -11,10 +11,7 @@ const app = express();
 
 app.disable('x-powered-by');
 app.disable('etag');
-if (config.env === 'production') {
-  app.set('trust proxy', 1);
-}
-
+app.set('trust proxy', 1);
 app.use(
   cors({
     origin: (origin, callback) => {
