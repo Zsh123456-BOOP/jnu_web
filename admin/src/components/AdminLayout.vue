@@ -48,6 +48,7 @@ const handleLogout = async () => {
           <template #title>内容</template>
           <el-menu-item index="/modules">模块管理</el-menu-item>
           <el-menu-item index="/contents">内容管理</el-menu-item>
+          <el-menu-item index="/members">成员管理</el-menu-item>
           <el-menu-item index="/assets">资源管理</el-menu-item>
         </el-sub-menu>
         <el-sub-menu index="system">

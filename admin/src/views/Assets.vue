@@ -87,14 +87,23 @@ onMounted(loadAssets);
 <template>
   <div class="page-container">
     <div class="page-header">
-      <h1>资源管理</h1>
-      <el-upload :http-request="handleUpload" :show-file-list="false">
-        <el-button type="primary" :loading="uploading">上传文件</el-button>
-      </el-upload>
+      <div>
+        <h1 class="page-title">资源管理</h1>
+        <p class="page-subtitle">上传并管理站点使用的图片资源</p>
+      </div>
+      <div class="page-header__actions">
+        <el-upload
+          :http-request="handleUpload"
+          :show-file-list="false"
+          accept="image/png,image/jpeg,image/webp"
+        >
+          <el-button type="primary" :loading="uploading">上传图片</el-button>
+        </el-upload>
+      </div>
     </div>
 
     <el-card class="page-card">
-      <el-table :data="assets" v-loading="loading">
+      <el-table class="admin-table" :data="assets" v-loading="loading">
         <el-table-column prop="original_name" label="文件名" min-width="200" show-overflow-tooltip />
         <el-table-column prop="mime" label="MIME 类型" min-width="140" />
         <el-table-column label="大小" width="120">
@@ -129,11 +138,3 @@ onMounted(loadAssets);
     </el-card>
   </div>
 </template>
-
-<style scoped>
-.pagination-container {
-  padding-top: 20px;
-  display: flex;
-  justify-content: flex-end;
-}
-</style>

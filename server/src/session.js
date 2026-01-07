@@ -1,19 +1,9 @@
 import session from 'express-session';
 import MySQLSession from 'express-mysql-session';
-import mysql from 'mysql2/promise';
 import { config } from './config.js';
+import { pool } from './db.js';
 
 const MySQLStore = MySQLSession(session);
-const sessionPool = mysql.createPool({
-  host: config.db.host,
-  port: config.db.port,
-  user: config.db.user,
-  password: config.db.password,
-  database: config.db.database,
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0
-});
 
 const sessionStore = new MySQLStore(
   {
@@ -30,7 +20,7 @@ const sessionStore = new MySQLStore(
     checkExpirationInterval: 1000 * 60 * 10,
     expiration: 1000 * 60 * 60 * 24
   },
-  sessionPool
+  pool
 );
 
 export const sessionMiddleware = session({

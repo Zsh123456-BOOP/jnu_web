@@ -165,7 +165,7 @@ const rules = {
 <template>
   <div class="page-container content-edit">
     <div class="page-header content-edit-header">
-      <h1>{{ pageTitle }}</h1>
+      <h1 class="page-title">{{ pageTitle }}</h1>
       <div class="content-edit-actions">
         <el-button @click="router.back()">返回</el-button>
         <el-button type="primary" :loading="loading" @click="handleSave">保存</el-button>

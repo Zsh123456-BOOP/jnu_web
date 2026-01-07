@@ -10,23 +10,20 @@
   --font-serif: var(--font-sans);
   --font-mono: "Fira Code", "Courier New", monospace;
 
-  /* --- Font Size Scale --- */
-  --font-size-xs: 0.875rem; /* 14px */
-  --font-size-sm: 1rem; /* 16px */
-  --font-size-md: 1.125rem; /* 18px */
-  --font-size-lg: 1.25rem; /* 20px */
-  --font-size-xl: 1.5rem; /* 24px */
-  --font-size-2xl: 1.875rem; /* 30px */
-  --font-size-3xl: 2.25rem; /* 36px */
-  --font-size-4xl: 3rem; /* 48px */
+  --font-size-xs: 0.875rem;
+  --font-size-sm: 1rem;
+  --font-size-md: 1.125rem;
+  --font-size-lg: 1.25rem;
+  --font-size-xl: 1.5rem;
+  --font-size-2xl: 1.875rem;
+  --font-size-3xl: 2.25rem;
+  --font-size-4xl: 3rem;
 
-  /* --- Font Weight --- */
   --font-weight-normal: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
 
-  /* --- Line Height --- */
   --line-height-heading: 1.2;
   --line-height-body: 1.7;
   --line-height-tight: 1.1;
@@ -38,24 +35,24 @@
   --brand-hue: 192;
   --brand-saturation: 100%;
   --brand-lightness: 22%;
-  --brand-primary: hsl(var(--brand-hue) var(--brand-saturation) var(--brand-lightness)); /* #006170 */
+  --brand-primary: hsl(var(--brand-hue) var(--brand-saturation) var(--brand-lightness));
 
   --color-primary: var(--brand-primary);
   --color-primary-soft: #dbe9eb;
   --color-primary-strong: hsl(var(--brand-hue) 85% 35%);
   --color-on-primary: #ffffff;
 
-  --color-text: #111827;
-  --color-text-muted: #6b7280;
-  --color-text-subtle: #9ca3af;
+  --color-text: #0f172a;
+  --color-text-muted: #64748b;
+  --color-text-subtle: #94a3b8;
 
   --color-surface: #ffffff;
-  --color-surface-soft: #f3f4f6;
+  --color-surface-soft: #f1f5f9;
   --color-surface-strong: #eef0f3;
   --color-on-surface: var(--color-text);
 
-  --color-border: #e6e8ec;
-  --color-border-hover: #d1d5db;
+  --color-border: #e2e8f0;
+  --color-border-hover: #cbd5e1;
   --color-border-focus: var(--brand-primary);
 
   --color-background: #f8fafc;
@@ -65,27 +62,21 @@
   --color-danger: hsl(0 72% 51%);
   --color-info: hsl(200 80% 55%);
 
-  /*
-  :root[data-theme="dark"] {
-    ...
-  }
-  */
-
   /* ------------------------------
-   * SPACING (4-point scale)
+   * SPACING
    * ------------------------------ */
-  --space-1: 0.25rem; /* 4px */
-  --space-2: 0.5rem; /* 8px */
-  --space-3: 0.75rem; /* 12px */
-  --space-4: 1rem; /* 16px */
-  --space-5: 1.25rem; /* 20px */
-  --space-6: 1.5rem; /* 24px */
-  --space-8: 2rem; /* 32px */
-  --space-10: 2.5rem; /* 40px */
-  --space-12: 3rem; /* 48px */
-  --space-16: 4rem; /* 64px */
-  --space-20: 5rem; /* 80px */
-  --space-24: 6rem; /* 96px */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
 
   /* ------------------------------
    * LAYOUT
@@ -95,23 +86,26 @@
   --breakpoint-lg: 1024px;
   --breakpoint-xl: 1280px;
 
-  --container-max-width: 1200px;
+  --container-max-width: 1280px;
   --container-padding-x: var(--space-6);
 
   /* ------------------------------
    * APPEARANCE
    * ------------------------------ */
-  --radius-sm: 8px;
-  --radius-md: 10px;
-  --radius-lg: 12px;
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
   --radius-full: 9999px;
 
   --border-width-sm: 1px;
   --border-width-md: 2px;
 
-  --shadow-sm: 0 1px 2px 0 rgb(15 23 42 / 0.06);
-  --shadow-md: 0 6px 16px -12px rgb(15 23 42 / 0.3);
-  --shadow-lg: 0 16px 32px -20px rgb(15 23 42 / 0.4);
+  --shadow-sm: 0 1px 2px 0 rgb(15 23 42 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(15 23 42 / 0.08), 0 2px 4px -2px rgb(15 23 42 / 0.08);
+  --shadow-lg: 0 10px 15px -3px rgb(15 23 42 / 0.08), 0 4px 6px -4px rgb(15 23 42 / 0.08);
+  --shadow-xl: 0 20px 25px -5px rgb(15 23 42 / 0.08), 0 8px 10px -6px rgb(15 23 42 / 0.08);
+  --shadow-hover: 0 20px 25px -5px rgb(15 23 42 / 0.1), 0 8px 10px -6px rgb(15 23 42 / 0.1);
   --shadow-inner: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
   --shadow-focus-ring: 0 0 0 3px hsl(var(--brand-hue) 92% 90%);
 
@@ -124,36 +118,4 @@
   --z-index-modal: 1050;
   --z-index-popover: 1060;
   --z-index-tooltip: 1070;
-  /* --- Refined Color Palette (更高级的蓝灰色调) --- */
-  --brand-hue: 192; /* Dark teal */
-  --brand-saturation: 100%;
-  --brand-lightness: 22%;
-  
-  --color-background: #f8fafc; /* 极淡的冷灰背景，比纯白更有质感 */
-  --color-surface: #ffffff;
-  --color-surface-soft: #f1f5f9;
-  
-  --color-text: #0f172a; /* 深邃的蓝黑，比纯黑柔和 */
-  --color-text-muted: #64748b;
-  --color-text-subtle: #94a3b8;
-
-  --color-border: #e2e8f0;
-  
-  /* --- Modern Spacing & Layout --- */
-  --container-max-width: 1280px; /* 稍微加宽，适应现代大屏 */
-
-  /* --- Modern Appearance (关键优化点) --- */
-  --radius-sm: 6px;
-  --radius-md: 12px; /* 更大的圆角，显得更友好 */
-  --radius-lg: 16px;
-  --radius-xl: 24px;
-
-  /* 更有层次感的弥散阴影 */
-  --shadow-sm: 0 1px 2px 0 rgb(15 23 42 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(15 23 42 / 0.08), 0 2px 4px -2px rgb(15 23 42 / 0.08);
-  --shadow-lg: 0 10px 15px -3px rgb(15 23 42 / 0.08), 0 4px 6px -4px rgb(15 23 42 / 0.08);
-  --shadow-xl: 0 20px 25px -5px rgb(15 23 42 / 0.08), 0 8px 10px -6px rgb(15 23 42 / 0.08);
-  
-  /* 卡片悬停时的辉光效果 */
-  --shadow-hover: 0 20px 25px -5px rgb(15 23 42 / 0.1), 0 8px 10px -6px rgb(15 23 42 / 0.1);
 }

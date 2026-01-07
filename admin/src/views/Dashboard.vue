@@ -78,8 +78,13 @@ onMounted(loadStats);
 <template>
   <div class="page-container">
     <div class="page-header">
-      <h1>仪表盘</h1>
-      <el-button type="primary" :loading="loading" @click="loadStats" plain>刷新</el-button>
+      <div>
+        <h1 class="page-title">仪表盘</h1>
+        <p class="page-subtitle">系统概览与快捷入口</p>
+      </div>
+      <div class="page-header__actions">
+        <el-button type="primary" :loading="loading" @click="loadStats" plain>刷新</el-button>
+      </div>
     </div>
 
     <el-row :gutter="20" class="stat-row" v-loading="loading">

@@ -11,7 +11,7 @@
  Target Server Version : 80040 (8.0.40)
  File Encoding         : 65001
 
- Date: 06/01/2026 15:29:18
+ Date: 07/01/2026 12:19:50
 */
 
 SET NAMES utf8mb4;
@@ -109,6 +109,34 @@ INSERT INTO `content` VALUES (11, 7, 'Partner Institute A', 'partner-institute-a
 INSERT INTO `content` VALUES (12, 8, 'Intro to Bioinformatics Pipelines', 'intro-bioinformatics-pipelines', 'published', 'richtext', NULL, '<h1>Intro to Bioinformatics Pipelines</h1>\r\n<p>A short course covering reproducible analysis workflows, data QC, and reporting.</p>\r\n<ul>\r\n  <li>Module 1: Data formats and ingestion</li>\r\n  <li>Module 2: QC and filtering</li>\r\n  <li>Module 3: Reporting and reproducibility</li>\r\n</ul>', 'Short course on reproducible analysis workflows and QC.', NULL, 2025, '[\"course\", \"bioinformatics\"]', '[{\"name\": \"Lab Admin\", \"role\": \"Instructor\"}]', '{\"course\": {\"level\": \"beginner\", \"duration\": \"4 weeks\"}}', '2025-09-12 09:00:00', '2026-01-01 16:21:17', '2026-01-01 16:21:17');
 INSERT INTO `content` VALUES (13, 10, 'NeurIPS 2025 Workshop: Reliable LLM Systems', 'neurips-2025-reliable-llm-systems', 'published', 'markdown', '# NeurIPS 2025 Workshop: Reliable LLM Systems\r\nWe presented work on evaluation and reliability for long-context RAG.\r\n\r\n## Talk\r\n- Title: Structure-aware evidence selection\r\n- Format: poster + short talk\r\n', NULL, 'Workshop entry for a reliable LLM systems event.', NULL, 2025, '[\"conference\", \"neurips\"]', '[{\"name\": \"Siu Ki Cheung\", \"role\": \"Presenter\"}]', '{\"conference\": {\"name\": \"NeurIPS\", \"type\": \"workshop\"}}', '2025-12-10 13:00:00', '2026-01-01 16:21:17', '2026-01-01 16:21:17');
 INSERT INTO `content` VALUES (14, 11, 'Useful Links', 'useful-links', 'published', 'markdown', '# Useful Links\r\nA curated list of external resources used by the lab.\r\n', NULL, 'Curated external resources.', NULL, NULL, '[\"links\", \"resources\"]', '[]', '{\"links\": [{\"url\": \"https://github.com/\", \"label\": \"GitHub\"}, {\"url\": \"https://scanpy.readthedocs.io/\", \"label\": \"Scanpy\"}]}', '2025-07-01 10:00:00', '2026-01-01 16:21:17', '2026-01-01 16:21:17');
+
+-- ----------------------------
+-- Table structure for member
+-- ----------------------------
+DROP TABLE IF EXISTS `member`;
+CREATE TABLE `member`  (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `position` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
+  `research_interests` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
+  `hobbies` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
+  `email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
+  `image_asset_id` bigint UNSIGNED NULL DEFAULT NULL,
+  `sort_order` int NOT NULL DEFAULT 0,
+  `enabled` tinyint(1) NOT NULL DEFAULT 1,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_member_enabled_sort`(`enabled` ASC, `sort_order` ASC, `id` ASC) USING BTREE,
+  INDEX `fk_member_image_asset`(`image_asset_id` ASC) USING BTREE,
+  CONSTRAINT `fk_member_image_asset` FOREIGN KEY (`image_asset_id`) REFERENCES `asset` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of member
+-- ----------------------------
+INSERT INTO `member` (`name`, `position`, `research_interests`, `hobbies`, `email`, `image_asset_id`, `sort_order`, `enabled`)
+VALUES ('赖文普', '博士后', 'AI for science|多组学|肿瘤免疫', '吉他', 'kyzy850520@163.com', NULL, 0, 1);
 
 -- ----------------------------
 -- Table structure for module

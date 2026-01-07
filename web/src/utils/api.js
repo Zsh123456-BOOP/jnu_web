@@ -79,3 +79,8 @@ export async function getSettingsSite() {
   const payload = await request('/settings/site');
   return payload?.data || null;
 }
+
+export async function getMembers() {
+  const payload = await request('/members');
+  return payload?.data || [];
+}

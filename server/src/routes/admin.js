@@ -63,6 +63,21 @@ const isJsonLike = (value) => {
   return false;
 };
 
+const memberValidators = [
+  body('name').isString().trim().notEmpty().isLength({ max: 100 }),
+  body('position').optional({ nullable: true, checkFalsy: true }).isString().trim().isLength({ max: 100 }),
+  body('research_interests')
+    .optional({ nullable: true, checkFalsy: true })
+    .isString()
+    .trim()
+    .isLength({ max: 500 }),
+  body('hobbies').optional({ nullable: true, checkFalsy: true }).isString().trim().isLength({ max: 200 }),
+  body('email').optional({ nullable: true, checkFalsy: true }).isString().trim().isLength({ max: 255 }),
+  body('image_asset_id').optional({ nullable: true, checkFalsy: true }).isInt({ min: 1 }),
+  body('sort_order').optional().isInt({ min: 0 }),
+  body('enabled').optional().custom(isBooleanLike)
+];
+
 const mapModule = (row) => ({
   ...row,
   config_json: safeJsonParse(row.config_json, {})
@@ -80,6 +95,29 @@ const mapContent = (row) => ({
 const mapAsset = (row) => ({
   ...row,
   url: `/static/${row.relative_path}`
+});
+
+const mapMember = (row) => ({
+  id: row.id,
+  name: row.name,
+  position: row.position,
+  research_interests: row.research_interests,
+  hobbies: row.hobbies,
+  email: row.email,
+  image_asset_id: row.image_asset_id,
+  sort_order: row.sort_order,
+  enabled: row.enabled,
+  created_at: row.created_at,
+  updated_at: row.updated_at,
+  image:
+    row.image_asset_id && row.image_relative_path
+      ? {
+          id: row.image_asset_id,
+          url: `/static/${row.image_relative_path}`,
+          mime: row.image_mime || null,
+          original_name: row.image_original_name || null
+        }
+      : null
 });
 
 const sanitizeFilename = (filename) => {
@@ -127,6 +165,14 @@ const ensureJsonObject = (value, fieldName) => {
   return parsed;
 };
 
+const normalizeOptionalText = (value) => {
+  if (value === undefined || value === null) {
+    return null;
+  }
+  const trimmed = String(value).trim();
+  return trimmed ? trimmed : null;
+};
+
 const parseDateTime = (value, fieldName) => {
   if (!value) {
     return null;
@@ -160,6 +206,8 @@ const saveSession = (req) =>
     });
   });
 
+const allowedImageMimes = new Set(['image/png', 'image/jpeg', 'image/webp']);
+
 const upload = multer({
   storage: multer.diskStorage({
     destination: (req, _file, cb) => {
@@ -181,6 +229,13 @@ const upload = multer({
       cb(null, filename);
     }
   }),
+  fileFilter: (_req, file, cb) => {
+    if (!allowedImageMimes.has(file.mimetype)) {
+      cb(new ApiError(400, '仅支持上传 PNG/JPG/WEBP 图片'));
+      return;
+    }
+    cb(null, true);
+  },
   limits: {
     fileSize: 20 * 1024 * 1024
   }
@@ -267,10 +322,10 @@ router.get(
 
 router.get(
   '/admin/modules',
-  [query('page').optional().isInt({ min: 1 }), query('pageSize').optional().isInt({ min: 1, max: 100 })],
+  [query('page').optional().isInt({ min: 1 }), query('pageSize').optional().isInt({ min: 1, max: 200 })],
   validateRequest,
   asyncHandler(async (req, res) => {
-    const { page, pageSize, offset } = getPagination(req.query);
+    const { page, pageSize, offset } = getPagination(req.query, { maxPageSize: 200 });
     const totalRow = await queryOne('SELECT COUNT(*) as total FROM module');
     const rows = await queryRows(
       'SELECT * FROM module ORDER BY sort_order ASC, id ASC LIMIT ? OFFSET ?',
@@ -412,6 +467,145 @@ router.delete(
     const result = await execute('DELETE FROM module WHERE id = ?', [req.params.id]);
     if (result.affectedRows === 0) {
       throw new ApiError(404, 'Module not found');
+    }
+    res.json({ ok: true });
+  })
+);
+
+router.get(
+  '/admin/members',
+  [query('page').optional().isInt({ min: 1 }), query('pageSize').optional().isInt({ min: 1, max: 200 })],
+  validateRequest,
+  asyncHandler(async (req, res) => {
+    const { page, pageSize, offset } = getPagination(req.query, { maxPageSize: 200 });
+    const totalRow = await queryOne('SELECT COUNT(*) as total FROM member');
+    const rows = await queryRows(
+      `SELECT m.*, a.relative_path AS image_relative_path, a.mime AS image_mime, a.original_name AS image_original_name
+       FROM member m
+       LEFT JOIN asset a ON m.image_asset_id = a.id
+       ORDER BY m.sort_order ASC, m.id ASC
+       LIMIT ? OFFSET ?`,
+      [pageSize, offset]
+    );
+
+    res.json({
+      ok: true,
+      data: {
+        items: rows.map(mapMember),
+        total: totalRow ? Number(totalRow.total) : 0,
+        page,
+        pageSize
+      }
+    });
+  })
+);
+
+router.post(
+  '/admin/members',
+  memberValidators,
+  validateRequest,
+  asyncHandler(async (req, res) => {
+    const payload = {
+      name: req.body.name.trim(),
+      position: normalizeOptionalText(req.body.position),
+      research_interests: normalizeOptionalText(req.body.research_interests),
+      hobbies: normalizeOptionalText(req.body.hobbies),
+      email: normalizeOptionalText(req.body.email),
+      image_asset_id: req.body.image_asset_id ? Number(req.body.image_asset_id) : null,
+      sort_order: toInt(req.body.sort_order, 0),
+      enabled: toTinyInt(req.body.enabled, 1)
+    };
+
+    const result = await execute(
+      `INSERT INTO member (name, position, research_interests, hobbies, email, image_asset_id, sort_order, enabled)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        payload.name,
+        payload.position,
+        payload.research_interests,
+        payload.hobbies,
+        payload.email,
+        payload.image_asset_id,
+        payload.sort_order,
+        payload.enabled
+      ]
+    );
+
+    const row = await queryOne(
+      `SELECT m.*, a.relative_path AS image_relative_path, a.mime AS image_mime, a.original_name AS image_original_name
+       FROM member m
+       LEFT JOIN asset a ON m.image_asset_id = a.id
+       WHERE m.id = ?`,
+      [result.insertId]
+    );
+
+    res.json({
+      ok: true,
+      data: mapMember(row)
+    });
+  })
+);
+
+router.put(
+  '/admin/members/:id',
+  [param('id').isInt({ min: 1 }), ...memberValidators],
+  validateRequest,
+  asyncHandler(async (req, res) => {
+    const payload = {
+      name: req.body.name.trim(),
+      position: normalizeOptionalText(req.body.position),
+      research_interests: normalizeOptionalText(req.body.research_interests),
+      hobbies: normalizeOptionalText(req.body.hobbies),
+      email: normalizeOptionalText(req.body.email),
+      image_asset_id: req.body.image_asset_id ? Number(req.body.image_asset_id) : null,
+      sort_order: toInt(req.body.sort_order, 0),
+      enabled: toTinyInt(req.body.enabled, 1)
+    };
+
+    const result = await execute(
+      `UPDATE member
+       SET name = ?, position = ?, research_interests = ?, hobbies = ?, email = ?, image_asset_id = ?, sort_order = ?, enabled = ?
+       WHERE id = ?`,
+      [
+        payload.name,
+        payload.position,
+        payload.research_interests,
+        payload.hobbies,
+        payload.email,
+        payload.image_asset_id,
+        payload.sort_order,
+        payload.enabled,
+        req.params.id
+      ]
+    );
+
+    if (result.affectedRows === 0) {
+      throw new ApiError(404, 'Member not found');
+    }
+
+    const row = await queryOne(
+      `SELECT m.*, a.relative_path AS image_relative_path, a.mime AS image_mime, a.original_name AS image_original_name
+       FROM member m
+       LEFT JOIN asset a ON m.image_asset_id = a.id
+       WHERE m.id = ?`,
+      [req.params.id]
+    );
+
+    res.json({
+      ok: true,
+      data: mapMember(row)
+    });
+  })
+);
+
+router.delete(
+  '/admin/members/:id',
+  [param('id').isInt({ min: 1 })],
+  validateRequest,
+  asyncHandler(async (req, res) => {
+    const result = await execute('DELETE FROM member WHERE id = ?', [req.params.id]);
+    if (result.affectedRows === 0) {
+      throw new ApiError(404, 'Member not found');
     }
     res.json({ ok: true });
   })

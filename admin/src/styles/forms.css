@@ -44,6 +44,17 @@
   align-items: center;
 }
 
+/* Make form controls fill width in stacked forms */
+.el-form:not(.el-form--inline) .el-form-item__content .el-select,
+.el-form:not(.el-form--inline) .el-form-item__content .el-input-number {
+  width: 100%;
+}
+
+/* For inline forms, keep spacing consistent */
+.el-form--inline .el-form-item {
+  margin-right: var(--space-3);
+}
+
 /* Content edit sidebar controls */
 .content-sidebar .el-select,
 .content-sidebar .el-input,

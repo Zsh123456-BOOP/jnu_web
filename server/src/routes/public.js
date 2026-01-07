@@ -22,6 +22,29 @@ const mapContent = (row) => ({
   module_name: row.module_name
 });
 
+const mapMember = (row) => ({
+  id: row.id,
+  name: row.name,
+  position: row.position,
+  research_interests: row.research_interests,
+  hobbies: row.hobbies,
+  email: row.email,
+  image_asset_id: row.image_asset_id,
+  sort_order: row.sort_order,
+  enabled: row.enabled,
+  created_at: row.created_at,
+  updated_at: row.updated_at,
+  image:
+    row.image_asset_id && row.image_relative_path
+      ? {
+          id: row.image_asset_id,
+          url: `/static/${row.image_relative_path}`,
+          mime: row.image_mime || null,
+          original_name: row.image_original_name || null
+        }
+      : null
+});
+
 router.get(
   '/settings/site',
   asyncHandler(async (_req, res) => {
@@ -33,6 +56,24 @@ router.get(
         key: 'site',
         value
       }
+    });
+  })
+);
+
+router.get(
+  '/members',
+  asyncHandler(async (_req, res) => {
+    const rows = await queryRows(
+      `SELECT m.*, a.relative_path AS image_relative_path, a.mime AS image_mime, a.original_name AS image_original_name
+       FROM member m
+       LEFT JOIN asset a ON m.image_asset_id = a.id
+       WHERE m.enabled = 1
+       ORDER BY m.sort_order ASC, m.id ASC`
+    );
+
+    res.json({
+      ok: true,
+      data: rows.map(mapMember)
     });
   })
 );

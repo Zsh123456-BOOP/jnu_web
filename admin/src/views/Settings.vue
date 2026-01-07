@@ -60,8 +60,13 @@ onMounted(loadSettings);
 <template>
   <div class="page-container">
     <div class="page-header">
-      <h1>站点设置</h1>
-      <el-button type="primary" :loading="saving" @click="saveSettings">保存设置</el-button>
+      <div>
+        <h1 class="page-title">站点设置</h1>
+        <p class="page-subtitle">更新站点名称与首页模块配置</p>
+      </div>
+      <div class="page-header__actions">
+        <el-button type="primary" :loading="saving" @click="saveSettings">保存设置</el-button>
+      </div>
     </div>
 
     <el-card class="page-card" v-loading="loading">
@@ -80,19 +85,9 @@ onMounted(loadSettings);
             class="json-textarea"
             placeholder='示例：["home","about"]'
           />
-           <small>控制首页显示的模块卡片，值可以是模块 slug 字符串，或自定义对象。</small>
+           <small class="help-text">控制首页显示的模块卡片，值可以是模块 slug 字符串，或自定义对象。</small>
         </el-form-item>
       </el-form>
     </el-card>
   </div>
 </template>
-
-<style scoped>
-small {
-  color: var(--el-text-color-secondary);
-  font-size: 12px;
-  line-height: 1.5;
-  display: block;
-  margin-top: 4px;
-}
-</style>

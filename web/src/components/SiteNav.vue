@@ -81,6 +81,7 @@ onMounted(() => {
       <nav class="site-nav">
         <RouterLink class="site-nav__link" to="/" @click="closeMobileMenu">Home</RouterLink>
         <RouterLink class="site-nav__link" to="/search" @click="closeMobileMenu">Search</RouterLink>
+        <RouterLink class="site-nav__link" to="/members" @click="closeMobileMenu">Members</RouterLink>
         <span v-if="loading" class="site-nav__loading">Loading...</span>
         <RouterLink
           v-for="item in navModules"
@@ -158,6 +159,9 @@ onMounted(() => {
   text-decoration: none;
   border-left: 3px solid transparent;
   transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .site-nav__link:hover {

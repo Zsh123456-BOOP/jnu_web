@@ -177,7 +177,7 @@ onMounted(async () => {
 
 <template>
   <div>
-    <el-card class="page-card">
+    <el-card class="page-card page-card--tight">
       <template #header>
         <div class="card-header">
           <h2>内容管理</h2>
@@ -211,7 +211,7 @@ onMounted(async () => {
       </el-form>
 
       <!-- Table -->
-      <el-table :data="contents" v-loading="loading" stripe>
+      <el-table class="admin-table" :data="contents" v-loading="loading" stripe>
         <el-table-column prop="title" label="标题" min-width="200" show-overflow-tooltip />
         <el-table-column prop="module_name" label="模块" width="140" />
         <el-table-column prop="status" label="状态" width="100">
@@ -268,28 +268,6 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-.page-card {
-  --el-card-padding: 0;
-}
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--el-card-border-color);
-}
-.card-header h2 {
-  margin: 0;
-  font-size: 18px;
-}
-.filter-form {
-  padding: 16px 20px 0;
-}
-.pagination-container {
-  padding: 16px 20px;
-  display: flex;
-  justify-content: flex-end;
-}
 .preview-dialog-content {
   max-height: 75vh;
   overflow-y: auto;

@@ -1,0 +1,55 @@
+/* ==========================================================================
+   ADMIN TOKENS
+   ========================================================================== */
+
+:root {
+  --font-sans: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+
+  --admin-bg: #f3f4f6;
+  --admin-card: #ffffff;
+  --admin-border: #e6e8ec;
+  --admin-text: #111827;
+  --admin-text-muted: #6b7280;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+
+  --shadow-sm: 0 1px 2px 0 rgb(15 23 42 / 0.06);
+  --shadow-md: 0 6px 16px -12px rgb(15 23 42 / 0.3);
+
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+
+  --el-color-primary: #006170;
+  --el-color-primary-light-3: #26808d;
+  --el-color-primary-light-5: #4d9aa5;
+  --el-color-primary-light-7: #7bb5bd;
+  --el-color-primary-light-8: #a6d0d6;
+  --el-color-primary-light-9: #dbe9eb;
+  --el-color-primary-dark-2: #004d59;
+  --el-border-radius-base: var(--radius-md);
+  --el-border-color: var(--admin-border);
+  --el-border-color-light: #eef0f3;
+  --el-border-color-lighter: #f2f4f7;
+  --el-bg-color: var(--admin-card);
+  --el-bg-color-page: var(--admin-bg);
+  --el-fill-color-blank: var(--admin-card);
+  --el-fill-color-light: #f5f6f8;
+  --el-text-color-primary: var(--admin-text);
+  --el-text-color-regular: #374151;
+  --el-text-color-secondary: var(--admin-text-muted);
+  --el-text-color-placeholder: #9ca3af;
+  --el-mask-color: rgba(17, 24, 39, 0.4);
+}

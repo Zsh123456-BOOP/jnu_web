@@ -4,7 +4,9 @@ import ElementPlus from 'element-plus';
 import 'element-plus/dist/index.css';
 import App from './App.vue';
 import router from './router';
+import './styles/tokens.css';
 import './assets/main.css';
+import './styles/components.css';
 import './styles/forms.css';
 import './styles/dialog.css';
 

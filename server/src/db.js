@@ -1,8 +1,8 @@
 // server/db.js
-import mysql from 'mysql2/promise';
+import mysql from 'mysql2';
 import { config } from './config.js';
 
-const pool = mysql.createPool({
+const corePool = mysql.createPool({
   host: config.db.host,
   port: config.db.port,
   user: config.db.user,
@@ -12,6 +12,8 @@ const pool = mysql.createPool({
   connectionLimit: 10,
   queueLimit: 0
 });
+
+const pool = corePool.promise();
 
 export async function queryRows(sql, params = []) {
   const [rows] = await pool.query(sql, params);
@@ -28,5 +30,5 @@ export async function execute(sql, params = []) {
   return result;
 }
 
-// 如需 callback pool（例如某些第三方中间件），请在对应模块中单独创建。
-export { pool };
+// 如需 callback pool（例如某些第三方中间件），请使用 corePool。
+export { pool, corePool };

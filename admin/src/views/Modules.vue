@@ -275,11 +275,3 @@ onMounted(loadModules);
     </el-dialog>
   </div>
 </template>
-
-<style scoped>
-.pagination-container {
-  padding-top: 20px;
-  display: flex;
-  justify-content: flex-end;
-}
-</style>
