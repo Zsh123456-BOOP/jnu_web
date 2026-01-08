@@ -8,6 +8,21 @@ import { validateRequest } from '../middleware/validate.js';
 
 const router = Router();
 
+const toAbsoluteUrl = (req, urlPath) => {
+  if (!urlPath) return urlPath;
+
+  const proto = (req.headers['x-forwarded-proto'] || req.protocol || 'http')
+    .split(',')[0]
+    .trim();
+  const host = (req.headers['x-forwarded-host'] || req.headers.host || '')
+    .split(',')[0]
+    .trim();
+
+  if (!host) return urlPath;
+  return `${proto}://${host}${urlPath.startsWith('/') ? '' : '/'}${urlPath}`;
+};
+
+
 const mapModule = (row) => ({
   ...row,
   config_json: safeJsonParse(row.config_json, {})
@@ -22,7 +37,7 @@ const mapContent = (row) => ({
   module_name: row.module_name
 });
 
-const mapMember = (row) => ({
+const mapMember = (req, row) => ({
   id: row.id,
   name: row.name,
   position: row.position,
@@ -38,12 +53,14 @@ const mapMember = (row) => ({
     row.image_asset_id && row.image_relative_path
       ? {
           id: row.image_asset_id,
-          url: `/static/${row.image_relative_path}`,
+          // 返回绝对 URL，避免线上反代/子路径导致图片加载失败
+          url: toAbsoluteUrl(req, `/static/${row.image_relative_path}`),
           mime: row.image_mime || null,
           original_name: row.image_original_name || null
         }
       : null
 });
+
 
 router.get(
   '/settings/site',
@@ -62,7 +79,7 @@ router.get(
 
 router.get(
   '/members',
-  asyncHandler(async (_req, res) => {
+  asyncHandler(async (req, res) => {
     const rows = await queryRows(
       `SELECT m.*, a.relative_path AS image_relative_path, a.mime AS image_mime, a.original_name AS image_original_name
        FROM member m
@@ -73,10 +90,11 @@ router.get(
 
     res.json({
       ok: true,
-      data: rows.map(mapMember)
+      data: rows.map((row) => mapMember(req, row))
     });
   })
 );
+
 
 router.get(
   '/modules',
