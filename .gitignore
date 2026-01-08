@@ -35,3 +35,7 @@ pnpm-debug.log*
 
 # vendor nginx source
 server/nginx-1.26.2/
+
+# accidental files
+eval "$(ssh-agent -s)"
+eval "$(ssh-agent -s)".pub
