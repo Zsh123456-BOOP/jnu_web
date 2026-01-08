@@ -11,7 +11,7 @@
  Target Server Version : 80040 (8.0.40)
  File Encoding         : 65001
 
- Date: 07/01/2026 12:19:50
+ Date: 08/01/2026 22:50:33
 */
 
 SET NAMES utf8mb4;
@@ -36,7 +36,7 @@ CREATE TABLE `admin_user`  (
 -- ----------------------------
 -- Records of admin_user
 -- ----------------------------
-INSERT INTO `admin_user` VALUES (1, 'admin', '$2b$12$RcrFKorZmrdidqC.slgQbeFa11RaumCYa8eXWGrnhrDO3X1W7gzim', 1, '2026-01-01 13:33:16', '2025-12-31 23:17:38', '2026-01-01 13:33:16');
+INSERT INTO `admin_user` VALUES (1, 'admin', '$2b$12$RcrFKorZmrdidqC.slgQbeFa11RaumCYa8eXWGrnhrDO3X1W7gzim', 1, '2026-01-07 13:33:07', '2025-12-31 23:17:38', '2026-01-07 13:33:07');
 
 -- ----------------------------
 -- Table structure for asset
@@ -54,11 +54,27 @@ CREATE TABLE `asset`  (
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_asset_created_at`(`created_at` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 17 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of asset
 -- ----------------------------
+INSERT INTO `asset` VALUES (1, 'éæ´è.jpg', 'image/jpeg', 221283, 'uploads/2026/01/d22dfe65-fff7-43f7-a2d7-6daba4c6ea56__________.jpg', 'image', NULL, NULL, '2026-01-07 13:34:10');
+INSERT INTO `asset` VALUES (2, 'èµææ®.jpg', 'image/jpeg', 41587, 'uploads/2026/01/0cdb53e1-8009-4c1c-93f8-1e077afca59f__________.jpg', 'image', NULL, NULL, '2026-01-07 14:19:05');
+INSERT INTO `asset` VALUES (3, 'èç«é¹.png', 'image/png', 455072, 'uploads/2026/01/90d819b9-cae1-4bb6-b251-d24d2828a06b__________.png', 'image', NULL, NULL, '2026-01-07 14:19:33');
+INSERT INTO `asset` VALUES (4, 'é»åäº.jpg', 'image/jpeg', 147039, 'uploads/2026/01/84bf61de-5aac-4a40-8745-1763b832d470__________.jpg', 'image', NULL, NULL, '2026-01-07 14:19:56');
+INSERT INTO `asset` VALUES (5, 'æ±æ¦.jpg', 'image/jpeg', 4192837, 'uploads/2026/01/6795381a-022e-4638-b7c1-fe06dd3a5ff7_______.jpg', 'image', NULL, NULL, '2026-01-07 14:20:16');
+INSERT INTO `asset` VALUES (6, 'ä½äººå¯.jpg', 'image/jpeg', 413721, 'uploads/2026/01/98456c80-8ff7-4ff5-9feb-34a3e613944a__________.jpg', 'image', NULL, NULL, '2026-01-07 14:20:41');
+INSERT INTO `asset` VALUES (7, 'é»å¤ç.jpg', 'image/jpeg', 98445, 'uploads/2026/01/d9051f73-4dd8-4d2c-a3bd-e3b82b3adf19__________.jpg', 'image', NULL, NULL, '2026-01-07 14:21:04');
+INSERT INTO `asset` VALUES (8, 'è®¸ç§ä¸½.jpg', 'image/jpeg', 47064, 'uploads/2026/01/0c5c24ce-8b9a-4257-9624-2aeac3e641f0__________.jpg', 'image', NULL, NULL, '2026-01-07 14:21:24');
+INSERT INTO `asset` VALUES (9, 'æå¤©ä¸.jpg', 'image/jpeg', 1434787, 'uploads/2026/01/dd51bf52-343b-4a4e-b3b8-cd6fa88a716d__________.jpg', 'image', NULL, NULL, '2026-01-07 14:21:44');
+INSERT INTO `asset` VALUES (10, 'æå¯ç.png', 'image/png', 44085, 'uploads/2026/01/0331d56c-9088-455b-95ea-806fdfc64fd0__________.png', 'image', NULL, NULL, '2026-01-07 14:22:04');
+INSERT INTO `asset` VALUES (11, 'ææ¨é³.jpg', 'image/jpeg', 4899905, 'uploads/2026/01/f7abf310-0820-4aac-b3e3-9cd6ceba86c1__________.jpg', 'image', NULL, NULL, '2026-01-07 14:22:31');
+INSERT INTO `asset` VALUES (12, 'å´é æ¦.jpg', 'image/jpeg', 165931, 'uploads/2026/01/4d2f560e-2cc0-498d-a568-709546f8fbaf__________.jpg', 'image', NULL, NULL, '2026-01-07 14:22:51');
+INSERT INTO `asset` VALUES (13, 'ä½è.jpg', 'image/jpeg', 177874, 'uploads/2026/01/87c0d544-a55f-4283-9558-6971cebe4583_______.jpg', 'image', NULL, NULL, '2026-01-07 14:23:29');
+INSERT INTO `asset` VALUES (14, 'å»å½±ä».jpg', 'image/jpeg', 925092, 'uploads/2026/01/ad537473-ba7d-4bd0-8fae-bd759ec3f1e3__________.jpg', 'image', NULL, NULL, '2026-01-07 14:23:51');
+INSERT INTO `asset` VALUES (15, 'æè.jpg', 'image/jpeg', 184277, 'uploads/2026/01/95cda82d-c61a-47b2-91f6-4b8c7d49f78f_______.jpg', 'image', NULL, NULL, '2026-01-07 14:24:10');
+INSERT INTO `asset` VALUES (16, 'éç´.jpg', 'image/jpeg', 97254, 'uploads/2026/01/1b941c59-0ae6-40be-b047-79a09863e621_______.jpg', 'image', NULL, NULL, '2026-01-07 14:24:30');
 
 -- ----------------------------
 -- Table structure for content
@@ -130,13 +146,27 @@ CREATE TABLE `member`  (
   INDEX `idx_member_enabled_sort`(`enabled` ASC, `sort_order` ASC, `id` ASC) USING BTREE,
   INDEX `fk_member_image_asset`(`image_asset_id` ASC) USING BTREE,
   CONSTRAINT `fk_member_image_asset` FOREIGN KEY (`image_asset_id`) REFERENCES `asset` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 17 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of member
 -- ----------------------------
-INSERT INTO `member` (`name`, `position`, `research_interests`, `hobbies`, `email`, `image_asset_id`, `sort_order`, `enabled`)
-VALUES ('赖文普', '博士后', 'AI for science|多组学|肿瘤免疫', '吉他', 'kyzy850520@163.com', NULL, 0, 1);
+INSERT INTO `member` VALUES (1, '邓洁萍', '博士后', '免疫衰老|多组学', '阅读|音乐', 'dengjp01@jnu.edu.cn', 1, 0, 1, '2026-01-07 13:34:18', '2026-01-07 14:18:43');
+INSERT INTO `member` VALUES (2, '赖文普', '博士后', 'AI for science|多组学|肿瘤免疫', '吉他', 'kyzy850520@163.com', 2, 0, 1, '2026-01-07 14:19:07', '2026-01-07 14:19:07');
+INSERT INTO `member` VALUES (3, '茅立鹏', '博士后', '衰老|多组学|人工智能', '读书', 'iammaolipeng@foxmail.com', 3, 0, 1, '2026-01-07 14:19:34', '2026-01-07 14:19:34');
+INSERT INTO `member` VALUES (4, '黄博亚', '博士', '脑膜瘤|脑转移瘤', '羽毛球', 'xiaonuo0917@163.com', 4, 0, 1, '2026-01-07 14:19:57', '2026-01-07 14:19:57');
+INSERT INTO `member` VALUES (5, '朱悦', '博士', '三维基因组学', '美食|旅游', 'yuezhu1113@163.com', 5, 0, 1, '2026-01-07 14:20:18', '2026-01-07 14:20:18');
+INSERT INTO `member` VALUES (6, '何人可', '博士', '肿瘤免疫|衰老', '旅行|美食', 'hrk1996@stu2023.jnu.edu.cn', 6, 0, 1, '2026-01-07 14:20:42', '2026-01-07 14:20:42');
+INSERT INTO `member` VALUES (7, '黄夏璇', '博士', '心脏瓣膜病的发病机制', '健身', 'hxx0601@stu2021.jnu.edu.cn', 7, 0, 1, '2026-01-07 14:21:05', '2026-01-07 14:21:05');
+INSERT INTO `member` VALUES (8, '许秀丽', '博士', '急性淋巴细胞白血病', '撸猫', 'xuxiuli725@163.com', 8, 0, 1, '2026-01-07 14:21:25', '2026-01-07 14:21:25');
+INSERT INTO `member` VALUES (9, '李天一', '博士', '衰老时钟|单细胞多组学', '篮球|电影', '723432253@qq.com', 9, 0, 1, '2026-01-07 14:21:45', '2026-01-07 14:21:45');
+INSERT INTO `member` VALUES (10, '李启煜', '硕士', '肿瘤免疫|单细胞测序', '乒乓球', 'm15302808910@126.com', 10, 0, 1, '2026-01-07 14:22:06', '2026-01-07 14:22:06');
+INSERT INTO `member` VALUES (11, '李晨阳', '硕士', '多组学|人工智能', '健身|旅游', 'eden96211@gmail.com', 11, 0, 1, '2026-01-07 14:22:33', '2026-01-07 14:22:33');
+INSERT INTO `member` VALUES (12, '吴铠悦', '硕士', '三维基因组|转录组', '看书|网球', 'w2353046666@163.com', 12, 0, 1, '2026-01-07 14:22:52', '2026-01-07 14:22:52');
+INSERT INTO `member` VALUES (13, '何莉', '硕士', '药学', '羽毛球', 'hlll2003@outlook.com', 13, 0, 1, '2026-01-07 14:23:30', '2026-01-07 14:23:30');
+INSERT INTO `member` VALUES (14, '廖影仙', '硕士', '免疫|生信', '搞抽象', '1596741873@qq.com', 14, 0, 1, '2026-01-07 14:23:52', '2026-01-07 14:23:52');
+INSERT INTO `member` VALUES (15, '文蕊', '硕士', '硕士', '硕士', '1440764559@qq.com', 15, 0, 1, '2026-01-07 14:24:11', '2026-01-07 14:24:11');
+INSERT INTO `member` VALUES (16, '邓琴', '硕士', 'CRISPR-cas9', '无', '18342604969@163.com', 16, 0, 1, '2026-01-07 14:24:31', '2026-01-07 14:24:31');
 
 -- ----------------------------
 -- Table structure for module
@@ -189,7 +219,6 @@ CREATE TABLE `sessions`  (
 -- ----------------------------
 -- Records of sessions
 -- ----------------------------
-INSERT INTO `sessions` VALUES ('99oeEQBbqPqtaPM1HQ44vZU1-kOyt1wa', 1767407915, '{\"cookie\":{\"originalMaxAge\":86400000,\"expires\":\"2026-01-02T05:33:16.800Z\",\"secure\":false,\"httpOnly\":true,\"path\":\"/\",\"sameSite\":\"lax\"},\"adminId\":1,\"username\":\"admin\"}');
 
 -- ----------------------------
 -- Table structure for settings
