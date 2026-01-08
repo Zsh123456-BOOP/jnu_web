@@ -19,22 +19,21 @@ fi
 
 echo "[INFO] Using SQL: $SQL_FILE"
 echo "[INFO] Target DB: ${MYSQL_DATABASE} @ ${MYSQL_HOST}:${MYSQL_PORT} (user=${MYSQL_USER})"
+echo "[WARN] This will DROP DATABASE '${MYSQL_DATABASE}' and recreate it, then import '${SQL_FILE}'."
 
-# Optional: quick connectivity check
-mysql \
+# Quick connectivity check
+mysql --default-character-set=utf8mb4 \
   -h "${MYSQL_HOST}" -P "${MYSQL_PORT}" -u "${MYSQL_USER}" -p"${MYSQL_PASSWORD}" \
   -e "SELECT 1;" >/dev/null
 
-# Safety: show what will happen
-echo "[WARN] This will DROP DATABASE '${MYSQL_DATABASE}' and recreate it, then import '${SQL_FILE}'."
-
-# ===== Drop & recreate database (full replace) =====
-mysql \
+# Drop & recreate database (full replace)
+mysql --default-character-set=utf8mb4 \
   -h "${MYSQL_HOST}" -P "${MYSQL_PORT}" -u "${MYSQL_USER}" -p"${MYSQL_PASSWORD}" \
-  -e "DROP DATABASE IF EXISTS \`${MYSQL_DATABASE}\`; CREATE DATABASE \`${MYSQL_DATABASE}\` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;"
+  -e "DROP DATABASE IF EXISTS \`${MYSQL_DATABASE}\`;
+      CREATE DATABASE \`${MYSQL_DATABASE}\` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;"
 
-# ===== Import SQL =====
-mysql \
+# Import SQL (force utf8mb4 for client/file parsing)
+mysql --default-character-set=utf8mb4 \
   -h "${MYSQL_HOST}" -P "${MYSQL_PORT}" -u "${MYSQL_USER}" -p"${MYSQL_PASSWORD}" \
   "${MYSQL_DATABASE}" < "${SQL_FILE}"
 

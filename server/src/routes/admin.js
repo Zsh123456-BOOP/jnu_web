@@ -126,6 +126,25 @@ const sanitizeFilename = (filename) => {
   return cleaned || 'file';
 };
 
+const fixMulterFilename = (name) => {
+  if (!name) return name;
+
+  // 启发式判断：如果包含常见“UTF-8 被 latin1 误解”的字符，就尝试修复
+  // 例如：å´é æ¦.jpg 这类
+  const looksMojibake = /[ÃÂåäæçéèêëíìîïñóòôöõúùûüýÿ]/.test(name);
+  if (!looksMojibake) {
+    return name;
+  }
+
+  try {
+    const fixed = Buffer.from(name, 'latin1').toString('utf8');
+    return fixed || name;
+  } catch {
+    return name;
+  }
+};
+
+
 const getSafeStoragePath = (relativePath) => {
   if (!relativePath) {
     return null;
@@ -220,12 +239,16 @@ const upload = multer({
       cb(null, dir);
     },
     filename: (req, file, cb) => {
-      const safeName = sanitizeFilename(file.originalname);
+      const fixedOriginalName = fixMulterFilename(file.originalname);
+      const safeName = sanitizeFilename(fixedOriginalName);
       const filename = `${crypto.randomUUID()}_${safeName}`;
-      if (!req.uploadMeta) {
-        req.uploadMeta = {};
-      }
+
+      if (!req.uploadMeta) req.uploadMeta = {};
       req.uploadMeta.filename = filename;
+
+      // 保存修复后的原始名，供路由入库使用（保证一致）
+      req.uploadMeta.fixedOriginalName = fixedOriginalName;
+
       cb(null, filename);
     }
   }),
@@ -242,43 +265,43 @@ const upload = multer({
 });
 
 router.post(
-  '/admin/login',
-  [body('username').isString().trim().notEmpty(), body('password').isString().trim().notEmpty()],
-  validateRequest,
+  '/admin/assets/upload',
+  upload.single('file'),
   asyncHandler(async (req, res) => {
-    const username = req.body.username.trim();
-    const password = req.body.password;
-
-    const user = await queryOne('SELECT * FROM admin_user WHERE username = ? LIMIT 1', [
-      username
-    ]);
-
-    if (!user || user.is_active !== 1) {
-      throw new ApiError(401, 'Invalid credentials');
+    if (!req.file || !req.uploadMeta) {
+      throw new ApiError(400, 'File is required');
     }
 
-    const passwordOk = await bcrypt.compare(password, user.password_hash);
-    if (!passwordOk) {
-      throw new ApiError(401, 'Invalid credentials');
-    }
+    const { year, month, filename } = req.uploadMeta;
+    const relativePath = path.posix.join('uploads', year, month, filename);
+    const kind = req.file.mimetype && req.file.mimetype.startsWith('image/') ? 'image' : 'file';
 
-    await regenerateSession(req);
-    req.session.adminId = user.id;
-    req.session.username = user.username;
-    await saveSession(req);
+    // 优先使用 storage.filename 阶段保存的修复结果，保证磁盘名与 DB 原始名一致
+    const fixedOriginalName =
+      req.uploadMeta.fixedOriginalName || fixMulterFilename(req.file.originalname);
 
-    await execute('UPDATE admin_user SET last_login_at = NOW() WHERE id = ?', [user.id]);
+    const result = await execute(
+      `INSERT INTO asset (original_name, mime, size, relative_path, kind, width, height)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [
+        path.basename(fixedOriginalName),
+        req.file.mimetype,
+        req.file.size,
+        relativePath,
+        kind,
+        null,
+        null
+      ]
+    );
 
+    const row = await queryOne('SELECT * FROM asset WHERE id = ?', [result.insertId]);
     res.json({
       ok: true,
-      data: {
-        id: user.id,
-        username: user.username,
-        last_login_at: user.last_login_at
-      }
+      data: mapAsset(row)
     });
   })
 );
+
 
 router.use('/admin', requireAdmin);
 
@@ -910,6 +933,8 @@ router.post(
     const { year, month, filename } = req.uploadMeta;
     const relativePath = path.posix.join('uploads', year, month, filename);
     const kind = req.file.mimetype && req.file.mimetype.startsWith('image/') ? 'image' : 'file';
+    // 修复 multer/busboy 把 filename 当 latin1 导致的乱码
+    const fixedOriginalName = Buffer.from(req.file.originalname, 'latin1').toString('utf8');
 
     const result = await execute(
       `INSERT INTO asset (original_name, mime, size, relative_path, kind, width, height)
