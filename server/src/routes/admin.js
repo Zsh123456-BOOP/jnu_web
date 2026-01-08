@@ -18,6 +18,17 @@ import { sanitizeRichText } from '../utils/sanitize.js';
 
 const router = Router();
 
+// ====== NEW: 生成绝对 URL（适配反代） ======
+const toAbsoluteUrl = (req, urlPath) => {
+  if (!urlPath) return urlPath;
+
+  const proto = (req.headers['x-forwarded-proto'] || req.protocol || 'http').split(',')[0].trim();
+  const host = (req.headers['x-forwarded-host'] || req.headers.host || '').split(',')[0].trim();
+  if (!host) return urlPath;
+
+  return `${proto}://${host}${urlPath.startsWith('/') ? '' : '/'}${urlPath}`;
+};
+
 const moduleTypes = ['SinglePage', 'ListDetail', 'ExternalLink', 'LandingGrid', 'Contact'];
 const contentStatuses = ['draft', 'published'];
 const contentFormats = ['markdown', 'richtext'];
@@ -92,12 +103,13 @@ const mapContent = (row) => ({
   module_name: row.module_name
 });
 
-const mapAsset = (row) => ({
+// ====== CHANGED: mapAsset/mapMember 改为绝对 URL ======
+const mapAsset = (req, row) => ({
   ...row,
-  url: `/static/${row.relative_path}`
+  url: toAbsoluteUrl(req, `/static/${row.relative_path}`)
 });
 
-const mapMember = (row) => ({
+const mapMember = (req, row) => ({
   id: row.id,
   name: row.name,
   position: row.position,
@@ -113,7 +125,7 @@ const mapMember = (row) => ({
     row.image_asset_id && row.image_relative_path
       ? {
           id: row.image_asset_id,
-          url: `/static/${row.image_relative_path}`,
+          url: toAbsoluteUrl(req, `/static/${row.image_relative_path}`),
           mime: row.image_mime || null,
           original_name: row.image_original_name || null
         }
@@ -129,8 +141,6 @@ const sanitizeFilename = (filename) => {
 const fixMulterFilename = (name) => {
   if (!name) return name;
 
-  // 启发式判断：如果包含常见“UTF-8 被 latin1 误解”的字符，就尝试修复
-  // 例如：å´é æ¦.jpg 这类
   const looksMojibake = /[ÃÂåäæçéèêëíìîïñóòôöõúùûüýÿ]/.test(name);
   if (!looksMojibake) {
     return name;
@@ -143,7 +153,6 @@ const fixMulterFilename = (name) => {
     return name;
   }
 };
-
 
 const getSafeStoragePath = (relativePath) => {
   if (!relativePath) {
@@ -264,6 +273,7 @@ const upload = multer({
   }
 });
 
+// ====== admin 认证前：上传接口（你的原逻辑保留，返回 mapAsset(req,row)） ======
 router.post(
   '/admin/assets/upload',
   upload.single('file'),
@@ -276,7 +286,6 @@ router.post(
     const relativePath = path.posix.join('uploads', year, month, filename);
     const kind = req.file.mimetype && req.file.mimetype.startsWith('image/') ? 'image' : 'file';
 
-    // 优先使用 storage.filename 阶段保存的修复结果，保证磁盘名与 DB 原始名一致
     const fixedOriginalName =
       req.uploadMeta.fixedOriginalName || fixMulterFilename(req.file.originalname);
 
@@ -297,11 +306,10 @@ router.post(
     const row = await queryOne('SELECT * FROM asset WHERE id = ?', [result.insertId]);
     res.json({
       ok: true,
-      data: mapAsset(row)
+      data: mapAsset(req, row)
     });
   })
 );
-
 
 router.use('/admin', requireAdmin);
 
@@ -514,7 +522,7 @@ router.get(
     res.json({
       ok: true,
       data: {
-        items: rows.map(mapMember),
+        items: rows.map((r) => mapMember(req, r)),
         total: totalRow ? Number(totalRow.total) : 0,
         page,
         pageSize
@@ -564,7 +572,7 @@ router.post(
 
     res.json({
       ok: true,
-      data: mapMember(row)
+      data: mapMember(req, row)
     });
   })
 );
@@ -616,7 +624,7 @@ router.put(
 
     res.json({
       ok: true,
-      data: mapMember(row)
+      data: mapMember(req, row)
     });
   })
 );
@@ -922,42 +930,7 @@ router.delete(
   })
 );
 
-router.post(
-  '/admin/assets/upload',
-  upload.single('file'),
-  asyncHandler(async (req, res) => {
-    if (!req.file || !req.uploadMeta) {
-      throw new ApiError(400, 'File is required');
-    }
-
-    const { year, month, filename } = req.uploadMeta;
-    const relativePath = path.posix.join('uploads', year, month, filename);
-    const kind = req.file.mimetype && req.file.mimetype.startsWith('image/') ? 'image' : 'file';
-    // 修复 multer/busboy 把 filename 当 latin1 导致的乱码
-    const fixedOriginalName = Buffer.from(req.file.originalname, 'latin1').toString('utf8');
-
-    const result = await execute(
-      `INSERT INTO asset (original_name, mime, size, relative_path, kind, width, height)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [
-        path.basename(req.file.originalname),
-        req.file.mimetype,
-        req.file.size,
-        relativePath,
-        kind,
-        null,
-        null
-      ]
-    );
-
-    const row = await queryOne('SELECT * FROM asset WHERE id = ?', [result.insertId]);
-    res.json({
-      ok: true,
-      data: mapAsset(row)
-    });
-  })
-);
-
+// ====== CHANGED: assets 列表返回 mapAsset(req, row) ======
 router.get(
   '/admin/assets',
   [query('page').optional().isInt({ min: 1 }), query('pageSize').optional().isInt({ min: 1, max: 100 })],
@@ -973,7 +946,7 @@ router.get(
     res.json({
       ok: true,
       data: {
-        items: rows.map(mapAsset),
+        items: rows.map((r) => mapAsset(req, r)),
         total: totalRow ? Number(totalRow.total) : 0,
         page,
         pageSize
