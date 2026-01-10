@@ -311,6 +311,50 @@ router.post(
   })
 );
 
+router.post(
+  '/admin/login',
+  [
+    body('username').isString().trim().notEmpty().isLength({ max: 64 }),
+    body('password').isString().notEmpty()
+  ],
+  validateRequest,
+  asyncHandler(async (req, res) => {
+    const username = req.body.username.trim();
+    const password = req.body.password;
+
+    const user = await queryOne(
+      'SELECT id, username, password_hash, is_active FROM admin_user WHERE username = ? LIMIT 1',
+      [username]
+    );
+
+    if (!user || user.is_active !== 1) {
+      throw new ApiError(401, 'Unauthorized');
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password_hash);
+    if (!isMatch) {
+      throw new ApiError(401, 'Unauthorized');
+    }
+
+    await regenerateSession(req);
+    req.session.adminId = user.id;
+    req.session.username = user.username;
+    await saveSession(req);
+
+    await execute('UPDATE admin_user SET last_login_at = NOW() WHERE id = ?', [user.id]);
+
+    const payload = await queryOne(
+      'SELECT id, username, is_active, last_login_at, created_at, updated_at FROM admin_user WHERE id = ?',
+      [user.id]
+    );
+
+    res.json({
+      ok: true,
+      data: payload
+    });
+  })
+);
+
 router.use('/admin', requireAdmin);
 
 router.post(
