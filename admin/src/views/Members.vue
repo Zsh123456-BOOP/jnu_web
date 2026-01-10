@@ -30,11 +30,13 @@ const pagination = reactive({
 });
 
 const dialogVisible = ref(false);
+const filterPiOnly = ref(false);
 const formRef = ref(null);
 const form = reactive({
   id: null,
   name: '',
   position: '',
+  is_pi: false,
   research_interests: '',
   hobbies: '',
   email: '',
@@ -52,6 +54,7 @@ const resetForm = () => {
   form.id = null;
   form.name = '';
   form.position = '';
+  form.is_pi = false;
   form.research_interests = '';
   form.hobbies = '';
   form.email = '';
@@ -81,7 +84,11 @@ const loadMembers = async () => {
   loading.value = true;
   try {
     const res = await http.get('/admin/members', {
-      params: { page: pagination.page, pageSize: pagination.pageSize }
+      params: {
+        page: pagination.page,
+        pageSize: pagination.pageSize,
+        is_pi: filterPiOnly.value ? 1 : undefined
+      }
     });
     members.value = res.data?.data?.items || [];
     pagination.total = res.data?.data?.total || 0;
@@ -90,6 +97,11 @@ const loadMembers = async () => {
   } finally {
     loading.value = false;
   }
+};
+
+const handlePiFilterChange = () => {
+  pagination.page = 1;
+  loadMembers();
 };
 
 const openCreate = () => {
@@ -101,6 +113,7 @@ const openEdit = (row) => {
   form.id = row.id;
   form.name = row.name || '';
   form.position = row.position || '';
+  form.is_pi = Number(row.is_pi) === 1;
   form.research_interests = row.research_interests || '';
   form.hobbies = row.hobbies || '';
   form.email = row.email || '';
@@ -142,6 +155,7 @@ const saveMember = async () => {
   const payload = {
     name: form.name,
     position: normalizeOptional(form.position),
+    is_pi: form.is_pi ? 1 : 0,
     research_interests: normalizeOptional(form.research_interests),
     hobbies: normalizeOptional(form.hobbies),
     email: normalizeOptional(form.email),
@@ -192,6 +206,7 @@ onMounted(loadMembers);
         <p class="page-subtitle">维护实验室成员信息与头像展示</p>
       </div>
       <div class="page-header__actions">
+        <el-switch v-model="filterPiOnly" active-text="只看 PI" @change="handlePiFilterChange" />
         <el-button type="primary" @click="openCreate">新增成员</el-button>
       </div>
     </div>
@@ -207,6 +222,12 @@ onMounted(loadMembers);
         </el-table-column>
         <el-table-column prop="name" label="姓名" min-width="120" />
         <el-table-column prop="position" label="职位" min-width="140" />
+        <el-table-column label="PI" width="90">
+          <template #default="{ row }">
+            <el-tag v-if="Number(row.is_pi) === 1" type="warning">PI</el-tag>
+            <el-tag v-else type="info">成员</el-tag>
+          </template>
+        </el-table-column>
         <el-table-column prop="email" label="邮箱" min-width="200" show-overflow-tooltip />
         <el-table-column prop="sort_order" label="排序" width="100" />
         <el-table-column label="启用" width="90">
@@ -249,6 +270,9 @@ onMounted(loadMembers);
         </el-form-item>
         <el-form-item label="职位">
           <el-input v-model="form.position" />
+        </el-form-item>
+        <el-form-item label="PI/老师">
+          <el-switch v-model="form.is_pi" active-text="是" inactive-text="否" />
         </el-form-item>
         <el-form-item label="研究方向">
           <el-input v-model="form.research_interests" type="textarea" :rows="3" />

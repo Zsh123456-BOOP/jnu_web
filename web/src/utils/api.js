@@ -80,7 +80,8 @@ export async function getSettingsSite() {
   return payload?.data || null;
 }
 
-export async function getMembers() {
-  const payload = await request('/members');
+export async function getMembers(params = {}) {
+  const query = buildQuery(params);
+  const payload = await request(`/members${query}`);
   return payload?.data || [];
 }

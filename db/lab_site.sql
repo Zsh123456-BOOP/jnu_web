@@ -134,6 +134,7 @@ CREATE TABLE `member`  (
   `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `position` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
+  `is_pi` tinyint(1) NOT NULL DEFAULT 0,
   `research_interests` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
   `hobbies` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
   `email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
@@ -144,6 +145,7 @@ CREATE TABLE `member`  (
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_member_enabled_sort`(`enabled` ASC, `sort_order` ASC, `id` ASC) USING BTREE,
+  INDEX `idx_member_pi_enabled_sort`(`is_pi` ASC, `enabled` ASC, `sort_order` ASC, `id` ASC) USING BTREE,
   INDEX `fk_member_image_asset`(`image_asset_id` ASC) USING BTREE,
   CONSTRAINT `fk_member_image_asset` FOREIGN KEY (`image_asset_id`) REFERENCES `asset` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE = InnoDB AUTO_INCREMENT = 17 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
@@ -151,22 +153,22 @@ CREATE TABLE `member`  (
 -- ----------------------------
 -- Records of member
 -- ----------------------------
-INSERT INTO `member` VALUES (1, '邓洁萍', '博士后', '免疫衰老|多组学', '阅读|音乐', 'dengjp01@jnu.edu.cn', 25, 0, 1, '2026-01-07 13:34:18', '2026-01-08 23:20:08');
-INSERT INTO `member` VALUES (2, '赖文普', '博士后', 'AI for science|多组学|肿瘤免疫', '吉他', 'kyzy850520@163.com', 26, 0, 1, '2026-01-07 14:19:07', '2026-01-08 23:20:14');
-INSERT INTO `member` VALUES (3, '茅立鹏', '博士后', '衰老|多组学|人工智能', '读书', 'iammaolipeng@foxmail.com', 27, 0, 1, '2026-01-07 14:19:34', '2026-01-08 23:20:22');
-INSERT INTO `member` VALUES (4, '黄博亚', '博士', '脑膜瘤|脑转移瘤', '羽毛球', 'xiaonuo0917@163.com', 28, 0, 1, '2026-01-07 14:19:57', '2026-01-08 23:20:34');
-INSERT INTO `member` VALUES (5, '朱悦', '博士', '三维基因组学', '美食|旅游', 'yuezhu1113@163.com', 29, 0, 1, '2026-01-07 14:20:18', '2026-01-08 23:20:40');
-INSERT INTO `member` VALUES (6, '何人可', '博士', '肿瘤免疫|衰老', '旅行|美食', 'hrk1996@stu2023.jnu.edu.cn', 30, 0, 1, '2026-01-07 14:20:42', '2026-01-08 23:20:47');
-INSERT INTO `member` VALUES (7, '黄夏璇', '博士', '心脏瓣膜病的发病机制', '健身', 'hxx0601@stu2021.jnu.edu.cn', 31, 0, 1, '2026-01-07 14:21:05', '2026-01-08 23:20:57');
-INSERT INTO `member` VALUES (8, '许秀丽', '博士', '急性淋巴细胞白血病', '撸猫', 'xuxiuli725@163.com', 32, 0, 1, '2026-01-07 14:21:25', '2026-01-08 23:21:04');
-INSERT INTO `member` VALUES (9, '李天一', '博士', '衰老时钟|单细胞多组学', '篮球|电影', '723432253@qq.com', 33, 0, 1, '2026-01-07 14:21:45', '2026-01-08 23:21:11');
-INSERT INTO `member` VALUES (10, '李启煜', '硕士', '肿瘤免疫|单细胞测序', '乒乓球', 'm15302808910@126.com', 34, 0, 1, '2026-01-07 14:22:06', '2026-01-08 23:21:20');
-INSERT INTO `member` VALUES (11, '李晨阳', '硕士', '多组学|人工智能', '健身|旅游', 'eden96211@gmail.com', 35, 0, 1, '2026-01-07 14:22:33', '2026-01-08 23:21:32');
-INSERT INTO `member` VALUES (12, '吴铠悦', '硕士', '三维基因组|转录组', '看书|网球', 'w2353046666@163.com', 36, 0, 1, '2026-01-07 14:22:52', '2026-01-08 23:21:41');
-INSERT INTO `member` VALUES (13, '何莉', '硕士', '药学', '羽毛球', 'hlll2003@outlook.com', 37, 0, 1, '2026-01-07 14:23:30', '2026-01-08 23:21:49');
-INSERT INTO `member` VALUES (14, '廖影仙', '硕士', '免疫|生信', '搞抽象', '1596741873@qq.com', 38, 0, 1, '2026-01-07 14:23:52', '2026-01-08 23:21:56');
-INSERT INTO `member` VALUES (15, '文蕊', '硕士', '硕士', '硕士', '1440764559@qq.com', 39, 0, 1, '2026-01-07 14:24:11', '2026-01-08 23:22:04');
-INSERT INTO `member` VALUES (16, '邓琴', '硕士', 'CRISPR-cas9', '无', '18342604969@163.com', 40, 0, 1, '2026-01-07 14:24:31', '2026-01-08 23:22:11');
+INSERT INTO `member` VALUES (1, '邓洁萍', '博士后', 0, '免疫衰老|多组学', '阅读|音乐', 'dengjp01@jnu.edu.cn', 25, 0, 1, '2026-01-07 13:34:18', '2026-01-08 23:20:08');
+INSERT INTO `member` VALUES (2, '赖文普', '博士后', 0, 'AI for science|多组学|肿瘤免疫', '吉他', 'kyzy850520@163.com', 26, 0, 1, '2026-01-07 14:19:07', '2026-01-08 23:20:14');
+INSERT INTO `member` VALUES (3, '茅立鹏', '博士后', 0, '衰老|多组学|人工智能', '读书', 'iammaolipeng@foxmail.com', 27, 0, 1, '2026-01-07 14:19:34', '2026-01-08 23:20:22');
+INSERT INTO `member` VALUES (4, '黄博亚', '博士', 0, '脑膜瘤|脑转移瘤', '羽毛球', 'xiaonuo0917@163.com', 28, 0, 1, '2026-01-07 14:19:57', '2026-01-08 23:20:34');
+INSERT INTO `member` VALUES (5, '朱悦', '博士', 0, '三维基因组学', '美食|旅游', 'yuezhu1113@163.com', 29, 0, 1, '2026-01-07 14:20:18', '2026-01-08 23:20:40');
+INSERT INTO `member` VALUES (6, '何人可', '博士', 0, '肿瘤免疫|衰老', '旅行|美食', 'hrk1996@stu2023.jnu.edu.cn', 30, 0, 1, '2026-01-07 14:20:42', '2026-01-08 23:20:47');
+INSERT INTO `member` VALUES (7, '黄夏璇', '博士', 0, '心脏瓣膜病的发病机制', '健身', 'hxx0601@stu2021.jnu.edu.cn', 31, 0, 1, '2026-01-07 14:21:05', '2026-01-08 23:20:57');
+INSERT INTO `member` VALUES (8, '许秀丽', '博士', 0, '急性淋巴细胞白血病', '撸猫', 'xuxiuli725@163.com', 32, 0, 1, '2026-01-07 14:21:25', '2026-01-08 23:21:04');
+INSERT INTO `member` VALUES (9, '李天一', '博士', 0, '衰老时钟|单细胞多组学', '篮球|电影', '723432253@qq.com', 33, 0, 1, '2026-01-07 14:21:45', '2026-01-08 23:21:11');
+INSERT INTO `member` VALUES (10, '李启煜', '硕士', 0, '肿瘤免疫|单细胞测序', '乒乓球', 'm15302808910@126.com', 34, 0, 1, '2026-01-07 14:22:06', '2026-01-08 23:21:20');
+INSERT INTO `member` VALUES (11, '李晨阳', '硕士', 0, '多组学|人工智能', '健身|旅游', 'eden96211@gmail.com', 35, 0, 1, '2026-01-07 14:22:33', '2026-01-08 23:21:32');
+INSERT INTO `member` VALUES (12, '吴铠悦', '硕士', 0, '三维基因组|转录组', '看书|网球', 'w2353046666@163.com', 36, 0, 1, '2026-01-07 14:22:52', '2026-01-08 23:21:41');
+INSERT INTO `member` VALUES (13, '何莉', '硕士', 0, '药学', '羽毛球', 'hlll2003@outlook.com', 37, 0, 1, '2026-01-07 14:23:30', '2026-01-08 23:21:49');
+INSERT INTO `member` VALUES (14, '廖影仙', '硕士', 0, '免疫|生信', '搞抽象', '1596741873@qq.com', 38, 0, 1, '2026-01-07 14:23:52', '2026-01-08 23:21:56');
+INSERT INTO `member` VALUES (15, '文蕊', '硕士', 0, '硕士', '硕士', '1440764559@qq.com', 39, 0, 1, '2026-01-07 14:24:11', '2026-01-08 23:22:04');
+INSERT INTO `member` VALUES (16, '邓琴', '硕士', 0, 'CRISPR-cas9', '无', '18342604969@163.com', 40, 0, 1, '2026-01-07 14:24:31', '2026-01-08 23:22:11');
 
 -- ----------------------------
 -- Table structure for module

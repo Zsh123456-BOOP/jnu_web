@@ -82,6 +82,7 @@ onMounted(() => {
         <RouterLink class="site-nav__link" to="/" @click="closeMobileMenu">Home</RouterLink>
         <RouterLink class="site-nav__link" to="/search" @click="closeMobileMenu">Search</RouterLink>
         <RouterLink class="site-nav__link" to="/members" @click="closeMobileMenu">Members</RouterLink>
+        <RouterLink class="site-nav__link" to="/pi" @click="closeMobileMenu">PI</RouterLink>
         <span v-if="loading" class="site-nav__loading">Loading...</span>
         <RouterLink
           v-for="item in navModules"

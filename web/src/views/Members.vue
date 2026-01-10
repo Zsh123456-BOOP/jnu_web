@@ -1,16 +1,19 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import { getMembers } from '../utils/api';
 
+const route = useRoute();
 const loading = ref(false);
 const error = ref('');
 const members = ref([]);
+const isPiPage = computed(() => route.name === 'pi');
 
 const loadMembers = async () => {
   loading.value = true;
   error.value = '';
   try {
-    members.value = await getMembers();
+    members.value = await getMembers({ is_pi: isPiPage.value ? 1 : 0 });
   } catch (err) {
     error.value = err?.message || 'Failed to load members';
   } finally {
@@ -34,6 +37,9 @@ const splitTags = (value) => {
 };
 
 onMounted(loadMembers);
+watch(isPiPage, () => {
+  loadMembers();
+});
 </script>
 
 <template>
@@ -41,8 +47,10 @@ onMounted(loadMembers);
     <div class="container">
       <div class="page-header">
         <div class="page-header__text">
-          <h1 class="page-title">Members</h1>
-          <p class="page-subtitle">Lab members and research interests</p>
+          <h1 class="page-title">{{ isPiPage ? 'PI' : 'Members' }}</h1>
+          <p class="page-subtitle">
+            {{ isPiPage ? 'Principal investigators and faculty' : 'Lab members and research interests' }}
+          </p>
         </div>
       </div>
 
@@ -59,7 +67,9 @@ onMounted(loadMembers);
             </div>
             <div>
               <h3 class="member-card__name">{{ member.name }}</h3>
-              <p class="member-card__position">{{ member.position || 'Member' }}</p>
+              <p class="member-card__position">
+                {{ member.position || (isPiPage ? 'PI' : 'Member') }}
+              </p>
             </div>
           </div>
 

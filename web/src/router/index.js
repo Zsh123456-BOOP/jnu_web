@@ -10,6 +10,7 @@ const routes = [
   { path: '/', name: 'home', component: HomeView },
   { path: '/search', name: 'search', component: SearchView },
   { path: '/members', name: 'members', component: MembersView },
+  { path: '/pi', name: 'pi', component: MembersView },
   { path: '/:moduleSlug/:pageSlug', name: 'content-detail', component: ContentDetailView },
   { path: '/:moduleSlug', name: 'module', component: ModuleView },
   { path: '/404', name: 'not-found', component: NotFoundView },
