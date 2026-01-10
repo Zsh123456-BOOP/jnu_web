@@ -19,7 +19,7 @@ const handleLogout = async () => {
       type: 'warning'
     });
     await authStore.logout();
-    router.push('/login');
+    router.push({ name: 'login' });
   } catch (err) {
     if (err !== 'cancel' && err !== 'close') {
       ElMessage.error('退出失败');

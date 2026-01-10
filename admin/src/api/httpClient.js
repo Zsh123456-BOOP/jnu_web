@@ -14,10 +14,16 @@ httpClient.interceptors.response.use(
       error.status = status;
     }
     if (status === 401 && typeof window !== 'undefined') {
-      const currentPath = `${window.location.pathname}${window.location.search}`;
-      if (!currentPath.startsWith('/login')) {
-        const redirect = encodeURIComponent(currentPath);
-        window.location.href = `/login?redirect=${redirect}`;
+      const baseUrl = import.meta.env.BASE_URL || '/';
+      const basePath = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+      const pathname = window.location.pathname;
+      const search = window.location.search || '';
+      const appPath = basePath && pathname.startsWith(basePath)
+        ? pathname.slice(basePath.length) || '/'
+        : pathname || '/';
+      if (!appPath.startsWith('/login')) {
+        const redirect = encodeURIComponent(`${appPath}${search}`);
+        window.location.href = `${basePath}/login?redirect=${redirect}`;
       }
     }
     return Promise.reject(error);
