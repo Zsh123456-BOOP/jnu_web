@@ -1,7 +1,7 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { getContents } from '../utils/api';
+import api from '../api';
 import ContentList from './ContentList.vue';
 import Pagination from './Pagination.vue';
 import PageHeader from './PageHeader.vue';
@@ -54,7 +54,7 @@ const loadList = async () => {
   loading.value = true;
   error.value = '';
   try {
-    const data = await getContents({
+    const data = await api.contents.list({
       moduleSlug: props.module.slug,
       keyword: keyword.value || undefined,
       page: page.value,

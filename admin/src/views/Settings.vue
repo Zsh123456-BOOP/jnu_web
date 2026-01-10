@@ -1,7 +1,8 @@
 <script setup>
 import { onMounted, reactive, ref } from 'vue';
 import { ElMessage, ElCard, ElForm, ElFormItem, ElInput, ElButton } from 'element-plus';
-import http, { getErrorMessage } from '../utils/http';
+import api from '../api';
+import { getErrorMessage } from '../api/httpClient';
 
 const loading = ref(false);
 const saving = ref(false);
@@ -16,8 +17,8 @@ const form = reactive({
 const loadSettings = async () => {
   loading.value = true;
   try {
-    const res = await http.get('/admin/settings/site');
-    rawValue.value = res.data?.data?.value || {};
+    const data = await api.settings.getSite();
+    rawValue.value = data?.value || {};
     form.siteName = rawValue.value.siteName || '';
     form.logoText = rawValue.value.logoText || '';
     form.homeModules = JSON.stringify(rawValue.value.homeModules || [], null, 2);
@@ -44,7 +45,7 @@ const saveSettings = async () => {
       logoText: form.logoText,
       homeModules
     };
-    await http.put('/admin/settings/site', { value: payload });
+    await api.settings.updateSite({ value: payload });
     ElMessage.success('设置已保存');
     await loadSettings();
   } catch (err) {

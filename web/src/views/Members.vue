@@ -1,7 +1,7 @@
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import { getMembers } from '../utils/api';
+import api from '../api';
 
 const route = useRoute();
 const loading = ref(false);
@@ -13,7 +13,7 @@ const loadMembers = async () => {
   loading.value = true;
   error.value = '';
   try {
-    members.value = await getMembers({ is_pi: isPiPage.value ? 1 : 0 });
+    members.value = await api.members.list({ is_pi: isPiPage.value ? 1 : 0 });
   } catch (err) {
     error.value = err?.message || 'Failed to load members';
   } finally {

@@ -1,7 +1,7 @@
 <script setup>
 import { ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { getContents } from '../utils/api';
+import api from '../api';
 import ContentList from '../components/ContentList.vue';
 import Pagination from '../components/Pagination.vue';
 
@@ -35,7 +35,7 @@ const loadSearch = async () => {
   loading.value = true;
   error.value = '';
   try {
-    const data = await getContents({
+    const data = await api.contents.list({
       keyword: keyword.value,
       page: page.value,
       pageSize

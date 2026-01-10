@@ -1,7 +1,7 @@
 <script setup>
 import { ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { getModuleBySlug } from '../utils/api';
+import api from '../api';
 import ModuleRenderer from '../components/ModuleRenderer.vue';
 
 const route = useRoute();
@@ -20,7 +20,7 @@ const loadModule = async () => {
   error.value = '';
   moduleData.value = null;
   try {
-    moduleData.value = await getModuleBySlug(slug);
+    moduleData.value = await api.modules.getBySlug(slug);
   } catch (err) {
     if (err?.status === 404) {
       router.replace('/404');

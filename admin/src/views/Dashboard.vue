@@ -3,7 +3,8 @@ import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage, ElCard, ElButton, ElRow, ElCol, ElTag, ElIcon } from 'element-plus';
 import { DocumentAdd, Upload, Setting, Monitor } from '@element-plus/icons-vue';
-import http, { getErrorMessage } from '../utils/http';
+import api from '../api';
+import { getErrorMessage } from '../api/httpClient';
 
 const router = useRouter();
 const loading = ref(false);
@@ -56,12 +57,12 @@ const loadStats = async () => {
   loading.value = true;
   try {
     const [contentsRes, assetsRes] = await Promise.all([
-      http.get('/admin/contents', { params: { page: 1, pageSize: 1 } }),
-      http.get('/admin/assets', { params: { page: 1, pageSize: 1 } })
+      api.contents.list({ page: 1, pageSize: 1 }),
+      api.assets.list({ page: 1, pageSize: 1 })
     ]);
     stats.value = {
-      contents: contentsRes.data?.data?.total || 0,
-      assets: assetsRes.data?.data?.total || 0,
+      contents: contentsRes.total || 0,
+      assets: assetsRes.total || 0,
       systemStatus: '正常'
     };
   } catch (err) {

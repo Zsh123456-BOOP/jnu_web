@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { getModules, getSettingsSite } from '../utils/api';
+import api from '../api';
 
 export const useSiteStore = defineStore('site', {
   state: () => ({
@@ -34,7 +34,7 @@ export const useSiteStore = defineStore('site', {
       this.loadingModules = true;
       this.error = '';
       try {
-        this.modules = await getModules();
+        this.modules = await api.modules.list();
       } catch (err) {
         this.error = err?.message || 'Failed to load modules';
       } finally {
@@ -47,7 +47,7 @@ export const useSiteStore = defineStore('site', {
       }
       this.loadingSettings = true;
       try {
-        this.settingsSite = await getSettingsSite();
+        this.settingsSite = await api.settings.getSite();
       } catch {
         this.settingsSite = null;
       } finally {

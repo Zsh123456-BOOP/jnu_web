@@ -2,7 +2,7 @@
 import { computed, onMounted, ref } from 'vue';
 import { RouterLink } from 'vue-router';
 import { useSiteStore } from '../stores/site';
-import { getContents } from '../utils/api';
+import api from '../api';
 import ContentList from '../components/ContentList.vue';
 
 const siteStore = useSiteStore();
@@ -54,7 +54,7 @@ const loadLatest = async () => {
   latestLoading.value = true;
   latestError.value = '';
   try {
-    const data = await getContents({ pageSize: 5 });
+    const data = await api.contents.list({ pageSize: 5 });
     latestContents.value = data.items || [];
   } catch (err) {
     latestError.value = err?.message || 'Failed to load latest content';

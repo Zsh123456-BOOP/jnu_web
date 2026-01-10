@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import http from '../utils/http';
+import api from '../api';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -11,8 +11,7 @@ export const useAuthStore = defineStore('auth', {
     async fetchMe() {
       this.loading = true;
       try {
-        const res = await http.get('/admin/me');
-        this.user = res.data?.data || null;
+        this.user = await api.auth.me();
       } catch {
         this.user = null;
       } finally {
@@ -28,14 +27,13 @@ export const useAuthStore = defineStore('auth', {
       return this.fetchMe();
     },
     async login(payload) {
-      const res = await http.post('/admin/login', payload);
-      this.user = res.data?.data || null;
+      this.user = await api.auth.login(payload);
       this.checked = true;
       return this.user;
     },
     async logout() {
       try {
-        await http.post('/admin/logout');
+        await api.auth.logout();
       } finally {
         this.user = null;
         this.checked = true;

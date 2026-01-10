@@ -2,7 +2,8 @@
 import { onMounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import http, { getErrorMessage } from '../utils/http';
+import api from '../api';
+import { getErrorMessage } from '../api/httpClient';
 import { formatDateTime } from '../utils/format';
 import ContentRenderer from '../components/ContentRenderer.vue';
 
@@ -33,8 +34,7 @@ const loadModules = async () => {
   let collected = [];
 
   while (true) {
-    const res = await http.get('/admin/modules', { params: { page, pageSize } });
-    const data = res.data?.data;
+    const data = await api.modules.list({ page, pageSize });
     const items = data?.items || [];
     const total = Number(data?.total || 0);
     collected = collected.concat(items);
@@ -66,9 +66,9 @@ const loadContents = async () => {
     if (filters.keyword) {
       params.keyword = filters.keyword;
     }
-    const res = await http.get('/admin/contents', { params });
-    contents.value = res.data?.data?.items || [];
-    pagination.total = res.data?.data?.total || 0;
+    const data = await api.contents.list(params);
+    contents.value = data?.items || [];
+    pagination.total = data?.total || 0;
   } catch (err) {
     ElMessage.error(getErrorMessage(err, '加载内容失败'));
   } finally {
@@ -140,7 +140,7 @@ const togglePublish = async (row) => {
   const publishedAt = nextStatus === 'published' ? new Date().toISOString() : undefined;
   try {
     const payload = buildContentPayload(row, { status: nextStatus, published_at: publishedAt });
-    await http.put(`/admin/contents/${row.id}`, payload);
+    await api.contents.update(row.id, payload);
     ElMessage.success(nextStatus === 'published' ? '已发布' : '已撤回');
     loadContents();
   } catch (err) {
@@ -155,7 +155,7 @@ const deleteContent = async (row) => {
       cancelButtonText: '取消',
       type: 'warning'
     });
-    await http.delete(`/admin/contents/${row.id}`);
+    await api.contents.remove(row.id);
     ElMessage.success('内容已删除');
     loadContents();
   } catch (err) {

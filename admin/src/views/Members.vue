@@ -18,7 +18,8 @@ import {
   ElAvatar,
   ElTag
 } from 'element-plus';
-import http, { getErrorMessage } from '../utils/http';
+import api from '../api';
+import { getErrorMessage } from '../api/httpClient';
 
 const loading = ref(false);
 const uploading = ref(false);
@@ -83,15 +84,13 @@ const normalizeOptionalNumber = (value) => {
 const loadMembers = async () => {
   loading.value = true;
   try {
-    const res = await http.get('/admin/members', {
-      params: {
-        page: pagination.page,
-        pageSize: pagination.pageSize,
-        is_pi: filterPiOnly.value ? 1 : undefined
-      }
+    const data = await api.members.list({
+      page: pagination.page,
+      pageSize: pagination.pageSize,
+      is_pi: filterPiOnly.value ? 1 : undefined
     });
-    members.value = res.data?.data?.items || [];
-    pagination.total = res.data?.data?.total || 0;
+    members.value = data.items || [];
+    pagination.total = data.total || 0;
   } catch (err) {
     ElMessage.error(getErrorMessage(err, '加载成员失败'));
   } finally {
@@ -129,10 +128,7 @@ const handleUpload = async (options) => {
   const formData = new FormData();
   formData.append('file', options.file);
   try {
-    const res = await http.post('/admin/assets/upload', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    });
-    const asset = res.data?.data;
+    const asset = await api.assets.upload(formData);
     form.image_asset_id = asset?.id || null;
     form.image_url = asset?.url || '';
     ElMessage.success('头像上传成功');
@@ -165,10 +161,10 @@ const saveMember = async () => {
   };
   try {
     if (form.id) {
-      await http.put(`/admin/members/${form.id}`, payload);
+      await api.members.update(form.id, payload);
       ElMessage.success('成员已更新');
     } else {
-      await http.post('/admin/members', payload);
+      await api.members.create(payload);
       ElMessage.success('成员已创建');
     }
     dialogVisible.value = false;
@@ -185,7 +181,7 @@ const deleteMember = async (row) => {
       cancelButtonText: '取消',
       type: 'warning'
     });
-    await http.delete(`/admin/members/${row.id}`);
+    await api.members.remove(row.id);
     ElMessage.success('成员已删除');
     await loadMembers();
   } catch (err) {

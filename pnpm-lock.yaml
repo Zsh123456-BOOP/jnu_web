@@ -91,6 +91,9 @@ importers:
 
   web:
     dependencies:
+      axios:
+        specifier: ^1.6.8
+        version: 1.13.2
       markdown-it:
         specifier: ^14.0.0
         version: 14.1.0

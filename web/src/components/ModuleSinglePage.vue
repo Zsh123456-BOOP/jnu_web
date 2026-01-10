@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
-import { getContentBySlug, getContents } from '../utils/api';
+import api from '../api';
 import ContentRenderer from './ContentRenderer.vue';
 import PageHeader from './PageHeader.vue';
 
@@ -31,17 +31,17 @@ const loadContent = async () => {
   try {
     if (defaultSlug.value) {
       try {
-        content.value = await getContentBySlug(props.module.slug, defaultSlug.value);
+        content.value = await api.contents.getBySlug(props.module.slug, defaultSlug.value);
       } catch (err) {
         if (err?.status === 404) {
-          const data = await getContents({ moduleSlug: props.module.slug, pageSize: 1 });
+          const data = await api.contents.list({ moduleSlug: props.module.slug, pageSize: 1 });
           content.value = data.items?.[0] || null;
         } else {
           throw err;
         }
       }
     } else {
-      const data = await getContents({ moduleSlug: props.module.slug, pageSize: 1 });
+      const data = await api.contents.list({ moduleSlug: props.module.slug, pageSize: 1 });
       content.value = data.items?.[0] || null;
     }
   } catch (err) {

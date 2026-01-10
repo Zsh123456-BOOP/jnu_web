@@ -3,7 +3,7 @@ import { reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ElMessage, ElCard, ElForm, ElFormItem, ElInput, ElButton } from 'element-plus';
 import { useAuthStore } from '../stores/auth';
-import { getErrorMessage } from '../utils/http';
+import { getErrorMessage } from '../api/httpClient';
 
 const route = useRoute();
 const router = useRouter();

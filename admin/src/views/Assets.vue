@@ -1,7 +1,8 @@
 <script setup>
 import { onMounted, reactive, ref } from 'vue';
 import { ElMessage, ElMessageBox, ElCard, ElButton, ElTable, ElTableColumn, ElPagination, ElUpload } from 'element-plus';
-import http, { getErrorMessage } from '../utils/http';
+import api from '../api';
+import { getErrorMessage } from '../api/httpClient';
 import { formatDateTime, formatSize } from '../utils/format';
 
 const loading = ref(false);
@@ -16,11 +17,9 @@ const pagination = reactive({
 const loadAssets = async () => {
   loading.value = true;
   try {
-    const res = await http.get('/admin/assets', {
-      params: { page: pagination.page, pageSize: pagination.pageSize }
-    });
-    assets.value = res.data?.data?.items || [];
-    pagination.total = res.data?.data?.total || 0;
+    const data = await api.assets.list({ page: pagination.page, pageSize: pagination.pageSize });
+    assets.value = data.items || [];
+    pagination.total = data.total || 0;
   } catch (err) {
     ElMessage.error(getErrorMessage(err, '加载资源失败'));
   } finally {
@@ -38,9 +37,7 @@ const handleUpload = async (options) => {
   const formData = new FormData();
   formData.append('file', options.file);
   try {
-    await http.post('/admin/assets/upload', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    });
+    await api.assets.upload(formData);
     ElMessage.success('上传成功');
     // Go to first page to see the new upload
     pagination.page = 1;
@@ -71,7 +68,7 @@ const deleteAsset = async (row) => {
       cancelButtonText: '取消',
       type: 'warning'
     });
-    await http.delete(`/admin/assets/${row.id}`);
+    await api.assets.remove(row.id);
     ElMessage.success('资源已删除');
     await loadAssets();
   } catch (err) {

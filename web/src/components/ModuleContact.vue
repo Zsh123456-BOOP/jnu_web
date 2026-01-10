@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
-import { getContents } from '../utils/api';
+import api from '../api';
 import ContentRenderer from './ContentRenderer.vue';
 import PageHeader from './PageHeader.vue';
 
@@ -22,7 +22,7 @@ const loadContact = async () => {
   loading.value = true;
   error.value = '';
   try {
-    const data = await getContents({ moduleSlug: props.module.slug, pageSize: 1 });
+    const data = await api.contents.list({ moduleSlug: props.module.slug, pageSize: 1 });
     content.value = data.items?.[0] || null;
   } catch (err) {
     error.value = err?.message || 'Failed to load contact info';

@@ -2,7 +2,8 @@
 import { computed, reactive, ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage, ElCard, ElForm, ElFormItem, ElInput, ElButton, ElSelect, ElOption, ElRadioGroup, ElRadioButton, ElDatePicker } from 'element-plus';
-import http, { getErrorMessage } from '../utils/http';
+import api from '../api';
+import { getErrorMessage } from '../api/httpClient';
 import MarkdownRenderer from '../components/MarkdownRenderer.vue';
 import RichTextEditor from '../components/RichTextEditor.vue';
 
@@ -77,12 +78,11 @@ const normalizeList = (value) => {
 const loadInitialData = async () => {
   loading.value = true;
   try {
-    const moduleRes = await http.get('/admin/modules');
-    modules.value = moduleRes.data?.data?.items || [];
+    const moduleData = await api.modules.list({ page: 1, pageSize: 200 });
+    modules.value = moduleData.items || [];
 
     if (isEdit.value) {
-      const contentRes = await http.get(`/admin/contents/${props.id}`);
-      const content = contentRes.data?.data;
+      const content = await api.contents.get(props.id);
       if (content) {
         form.module_id = content.module_id || '';
         form.title = content.title || '';
@@ -141,10 +141,10 @@ const handleSave = async () => {
   loading.value = true;
   try {
     if (isEdit.value) {
-      await http.put(`/admin/contents/${props.id}`, payload);
+      await api.contents.update(props.id, payload);
       ElMessage.success('内容已更新');
     } else {
-      await http.post('/admin/contents', payload);
+      await api.contents.create(payload);
       ElMessage.success('内容已创建');
     }
     router.push({ name: 'contents' });

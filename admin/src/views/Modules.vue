@@ -1,7 +1,8 @@
 <script setup>
 import { onMounted, reactive, ref } from 'vue';
 import { ElMessage, ElMessageBox, ElCard, ElButton, ElTable, ElTableColumn, ElPagination, ElDialog, ElSwitch, ElInput, ElInputNumber, ElSelect, ElOption, ElForm, ElFormItem } from 'element-plus';
-import http, { getErrorMessage } from '../utils/http';
+import api from '../api';
+import { getErrorMessage } from '../api/httpClient';
 
 const loading = ref(false);
 const modules = ref([]);
@@ -44,11 +45,12 @@ const rules = {
 const loadModules = async () => {
   loading.value = true;
   try {
-    const res = await http.get('/admin/modules', {
-      params: { page: pagination.page, pageSize: pagination.pageSize }
+    const data = await api.modules.list({
+      page: pagination.page,
+      pageSize: pagination.pageSize
     });
-    modules.value = res.data?.data?.items || [];
-    pagination.total = res.data?.data?.total || 0;
+    modules.value = data.items || [];
+    pagination.total = data.total || 0;
   } catch (err) {
     ElMessage.error(getErrorMessage(err, '加载模块失败'));
   } finally {
@@ -95,10 +97,10 @@ const saveModule = async () => {
 
   try {
     if (form.id) {
-      await http.put(`/admin/modules/${form.id}`, payload);
+      await api.modules.update(form.id, payload);
       ElMessage.success('模块已更新');
     } else {
-      await http.post('/admin/modules', payload);
+      await api.modules.create(payload);
       ElMessage.success('模块已创建');
     }
     dialogVisible.value = false;
@@ -110,7 +112,7 @@ const saveModule = async () => {
 
 const updateModuleStatus = async (row, key, value) => {
  try {
-    await http.put(`/admin/modules/${row.id}`, { ...row, [key]: value ? 1 : 0 });
+    await api.modules.update(row.id, { ...row, [key]: value ? 1 : 0 });
     ElMessage.success('状态已更新');
     await loadModules();
   } catch (err) {
@@ -129,8 +131,8 @@ const moveModule = async (row, direction) => {
   const target = list[swapIndex];
   try {
     // Swap sort_order values
-    await http.put(`/admin/modules/${row.id}`, { sort_order: target.sort_order });
-    await http.put(`/admin/modules/${target.id}`, { sort_order: row.sort_order });
+    await api.modules.update(row.id, { sort_order: target.sort_order });
+    await api.modules.update(target.id, { sort_order: row.sort_order });
     ElMessage.success('排序已更新');
     await loadModules();
   } catch (err) {
@@ -145,7 +147,7 @@ const deleteModule = async (row) => {
       cancelButtonText: '取消',
       type: 'warning'
     });
-    await http.delete(`/admin/modules/${row.id}`);
+    await api.modules.remove(row.id);
     ElMessage.success('模块已删除');
     await loadModules();
   } catch (err) {

@@ -1,7 +1,7 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter, RouterLink } from 'vue-router';
-import { getContentBySlug } from '../utils/api';
+import api from '../api';
 import { formatDate } from '../utils/format';
 import ContentRenderer from '../components/ContentRenderer.vue';
 import PageHeader from '../components/PageHeader.vue';
@@ -29,7 +29,7 @@ const loadContent = async () => {
   error.value = '';
   content.value = null;
   try {
-    content.value = await getContentBySlug(moduleSlug, pageSlug);
+    content.value = await api.contents.getBySlug(moduleSlug, pageSlug);
   } catch (err) {
     if (err?.status === 404) {
       router.replace('/404');
