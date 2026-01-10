@@ -10,7 +10,8 @@ export const ENDPOINTS = {
       `/pages/${encodeURIComponent(moduleSlug)}/${encodeURIComponent(pageSlug)}`
   },
   settings: {
-    site: '/settings/site'
+    site: '/settings/site',
+    publicSiteSettings: '/public/site-settings'
   },
   members: {
     list: '/members'

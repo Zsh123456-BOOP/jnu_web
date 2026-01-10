@@ -9,3 +9,12 @@ export async function getSite() {
   const res = await httpClient.get(ENDPOINTS.settings.site);
   return res.data?.data || null;
 }
+
+/**
+ * Fetch public site settings.
+ * @returns {Promise<object|null>}
+ */
+export async function getPublicSiteSettings() {
+  const res = await httpClient.get(ENDPOINTS.settings.publicSiteSettings);
+  return res.data?.data || null;
+}

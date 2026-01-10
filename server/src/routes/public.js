@@ -8,6 +8,8 @@ const router = Router();
 
 router.get('/settings/site', asyncHandler(publicController.getSiteSettings));
 
+router.get('/public/site-settings', asyncHandler(publicController.getPublicSiteSettings));
+
 router.get('/members', asyncHandler(publicController.listMembers));
 
 router.get(

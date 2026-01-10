@@ -5,9 +5,16 @@ import { useSiteStore } from '../stores/site';
 
 const siteStore = useSiteStore();
 const settingsSite = computed(() => siteStore.settingsSite?.value || {});
+const footerSettings = computed(() => siteStore.publicSettings?.footer || {});
 const siteName = computed(() => settingsSite.value.siteName || 'Lab Nexus');
 const tagline = computed(() => settingsSite.value.logoText || 'Research, people, and publications.');
+const footerContact = computed(() => footerSettings.value.contact || {});
+const footerLinks = computed(() =>
+  Array.isArray(footerSettings.value.links) ? footerSettings.value.links : []
+);
 const year = new Date().getFullYear();
+
+const isExternalLink = (url = '') => /^https?:\/\//i.test(url);
 </script>
 
 <template>
@@ -18,21 +25,34 @@ const year = new Date().getFullYear();
           <div class="footer-logo">{{ siteName }}</div>
           <p class="footer-tagline">{{ tagline }}</p>
         </div>
-        <div>
-          <h4 class="footer-heading">Quick Links</h4>
+        <div v-for="(group, index) in footerLinks" :key="group.title || index">
+          <h4 class="footer-heading">{{ group.title || 'Links' }}</h4>
           <nav class="footer-links">
-            <RouterLink class="footer-link" to="/">Home</RouterLink>
-            <RouterLink class="footer-link" to="/research">Research</RouterLink>
-            <RouterLink class="footer-link" to="/people">Team</RouterLink>
+            <template v-for="(item, idx) in group.items || []" :key="item.label || idx">
+              <a
+                v-if="isExternalLink(item.url)"
+                class="footer-link"
+                :href="item.url"
+                target="_blank"
+                rel="noreferrer"
+              >
+                {{ item.label || item.url }}
+              </a>
+              <RouterLink v-else class="footer-link" :to="item.url || '/'">
+                {{ item.label || item.url }}
+              </RouterLink>
+            </template>
           </nav>
         </div>
         <div>
           <h4 class="footer-heading">Contact</h4>
           <div class="footer-contact">
-            <p>Address: 123 Research Road, City</p>
-            <p>
+            <p v-if="footerContact.address">Address: {{ footerContact.address }}</p>
+            <p v-if="footerContact.email">
               Email:
-              <a class="footer-link" href="mailto:lab@example.com">lab@example.com</a>
+              <a class="footer-link" :href="`mailto:${footerContact.email}`">
+                {{ footerContact.email }}
+              </a>
             </p>
           </div>
         </div>

@@ -238,5 +238,6 @@ CREATE TABLE `settings`  (
 -- Records of settings
 -- ----------------------------
 INSERT INTO `settings` VALUES ('site', '{\"logoText\": \"Research, people, and publications\", \"siteName\": \"Bioinfo Lab\", \"homeModules\": [{\"slug\": \"research\", \"title\": \"Research Areas\", \"description\": \"Explore our current projects and scientific focus.\"}, {\"slug\": \"software\", \"title\": \"Software & Tools\", \"description\": \"Open-source bioinformatics tools developed by our lab.\"}, {\"slug\": \"people\", \"title\": \"Meet the Team\", \"description\": \"Faculty, students, and alumni.\"}]}', '2026-01-01 21:28:23');
+INSERT INTO `settings` VALUES ('site.footer', '{\"contact\": {\"address\": \"123 Research Road, City\", \"email\": \"lab@example.com\"}, \"links\": [{\"title\": \"Quick Links\", \"items\": [{\"label\": \"Home\", \"url\": \"/\"}, {\"label\": \"Research\", \"url\": \"/research\"}, {\"label\": \"Team\", \"url\": \"/people\"}]}]}', '2026-01-01 21:28:23');
 
 SET FOREIGN_KEY_CHECKS = 1;

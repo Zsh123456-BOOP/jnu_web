@@ -53,6 +53,13 @@ const isJsonLike = (value) => {
   return false;
 };
 
+const isPlainObject = (value) => {
+  if (value === undefined || value === null) {
+    return true;
+  }
+  return typeof value === 'object' && !Array.isArray(value);
+};
+
 const memberValidators = [
   body('name').isString().trim().notEmpty().isLength({ max: 100 }),
   body('position').optional({ nullable: true, checkFalsy: true }).isString().trim().isLength({ max: 100 }),
@@ -67,6 +74,21 @@ const memberValidators = [
   body('image_asset_id').optional({ nullable: true, checkFalsy: true }).isInt({ min: 1 }),
   body('sort_order').optional().isInt({ min: 0 }),
   body('enabled').optional().custom(isBooleanLike)
+];
+
+const siteSettingsValidators = [
+  body('footer').optional().custom(isPlainObject),
+  body('footer.contact').optional().custom(isPlainObject),
+  body('footer.contact.address')
+    .optional({ nullable: true, checkFalsy: true })
+    .isString()
+    .trim()
+    .isLength({ max: 255 }),
+  body('footer.contact.email')
+    .optional({ nullable: true, checkFalsy: true })
+    .isEmail()
+    .isLength({ max: 255 }),
+  body('footer.links').optional().isArray()
 ];
 
 const upload = createAssetUploadMiddleware();
@@ -268,6 +290,15 @@ router.put(
   [body('value').optional(), body('value_json').optional()],
   validateRequest,
   asyncHandler(adminController.updateSiteSettings)
+);
+
+router.get('/admin/site-settings', asyncHandler(adminController.getAdminSiteSettings));
+
+router.put(
+  '/admin/site-settings',
+  siteSettingsValidators,
+  validateRequest,
+  asyncHandler(adminController.updateAdminSiteSettings)
 );
 
 export default router;

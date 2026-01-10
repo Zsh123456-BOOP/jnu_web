@@ -24,6 +24,7 @@ export const ENDPOINTS = {
     byId: (id) => `${ADMIN_BASE}/assets/${id}`
   },
   settings: {
-    site: `${ADMIN_BASE}/settings/site`
+    site: `${ADMIN_BASE}/settings/site`,
+    siteSettings: `${ADMIN_BASE}/site-settings`
   }
 };

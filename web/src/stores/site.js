@@ -5,8 +5,10 @@ export const useSiteStore = defineStore('site', {
   state: () => ({
     modules: [],
     settingsSite: null,
+    publicSettings: null,
     loadingModules: false,
     loadingSettings: false,
+    loadingPublicSettings: false,
     error: ''
   }),
   getters: {
@@ -25,7 +27,7 @@ export const useSiteStore = defineStore('site', {
   },
   actions: {
     async bootstrap() {
-      await Promise.all([this.fetchModules(), this.fetchSettings()]);
+      await Promise.all([this.fetchModules(), this.fetchSettings(), this.fetchPublicSettings()]);
     },
     async fetchModules() {
       if (this.loadingModules) {
@@ -52,6 +54,19 @@ export const useSiteStore = defineStore('site', {
         this.settingsSite = null;
       } finally {
         this.loadingSettings = false;
+      }
+    },
+    async fetchPublicSettings() {
+      if (this.loadingPublicSettings) {
+        return;
+      }
+      this.loadingPublicSettings = true;
+      try {
+        this.publicSettings = await api.settings.getPublicSiteSettings();
+      } catch {
+        this.publicSettings = null;
+      } finally {
+        this.loadingPublicSettings = false;
       }
     }
   }

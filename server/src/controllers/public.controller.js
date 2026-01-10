@@ -3,6 +3,7 @@ import { Asset, Content, Member, Module, Settings } from '../models/index.js';
 import { safeJsonParse } from '../utils/json.js';
 import { getPagination } from '../utils/pagination.js';
 import { toAbsoluteUrl } from '../utils/url.js';
+import { getSiteSettings as getSiteSettingsService } from '../services/site-settings.js';
 
 const toPlain = (row) => (row && typeof row.toJSON === 'function' ? row.toJSON() : row);
 
@@ -64,6 +65,14 @@ export async function getSiteSettings(_req, res) {
       key: 'site',
       value
     }
+  });
+}
+
+export async function getPublicSiteSettings(_req, res) {
+  const data = await getSiteSettingsService();
+  res.json({
+    ok: true,
+    data
   });
 }
 
