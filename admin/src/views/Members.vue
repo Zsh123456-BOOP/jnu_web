@@ -273,9 +273,9 @@ onMounted(loadMembers);
 
     <el-card class="page-card">
       <el-table class="admin-table" size="small" :data="members" v-loading="loading" row-key="id">
-        <el-table-column label="头像" width="90">
+        <el-table-column label="头像" width="110">
           <template #default="{ row }">
-            <el-avatar :size="40" :src="row.image?.url">
+            <el-avatar :size="80" shape="square" :src="row.image?.url">
               {{ row.name?.slice(0, 1) }}
             </el-avatar>
           </template>

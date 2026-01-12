@@ -212,15 +212,16 @@ watch(isPiPage, () => {
   display: flex;
   flex-direction: column;
   transition: transform 0.2s, box-shadow 0.2s;
-  background: var(--surface-card);
+  background: #f4f9ff;
   border: 1px solid var(--surface-border);
   border-radius: var(--radius-lg);
   overflow: hidden;
+  box-shadow: var(--shadow-md);
 }
 
 .member-card:hover {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-xl);
 }
 
 .member-card.cursor-pointer {
@@ -230,7 +231,9 @@ watch(isPiPage, () => {
 .member-card__header {
   padding: 1.5rem;
   display: flex;
+  flex-direction: column;
   align-items: center;
+  text-align: center;
   gap: 1rem;
   background: var(--surface-hover);
   border-bottom: 1px solid var(--surface-border);
@@ -238,9 +241,9 @@ watch(isPiPage, () => {
 
 .member-card__avatar {
   flex-shrink: 0;
-  width: 4rem;
-  height: 4rem;
-  border-radius: 50%;
+  width: 12rem;
+  height: 12rem;
+  border-radius: var(--radius-md);
   overflow: hidden;
   background: var(--surface-ground);
   display: flex;
