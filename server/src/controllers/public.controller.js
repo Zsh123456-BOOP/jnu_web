@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { Asset, Content, Member, Module, Settings } from '../models/index.js';
+import { Asset, Content, Member, MemberPiInfo, Module, Settings } from '../models/index.js';
 import { safeJsonParse } from '../utils/json.js';
 import { getPagination } from '../utils/pagination.js';
 import { toAbsoluteUrl } from '../utils/url.js';
@@ -31,10 +31,12 @@ const mapContent = (row) => {
 const mapMember = (req, row) => {
   const data = toPlain(row);
   const image = data.image || null;
+  const piInfo = data.pi_info || null;
   return {
     id: data.id,
     name: data.name,
     position: data.position,
+    type: data.type,
     is_pi: data.is_pi,
     research_interests: data.research_interests,
     hobbies: data.hobbies,
@@ -47,12 +49,17 @@ const mapMember = (req, row) => {
     image:
       image && image.relative_path
         ? {
-            id: image.id,
-            url: toAbsoluteUrl(req, `/static/${image.relative_path}`),
-            mime: image.mime || null,
-            original_name: image.original_name || null
-          }
-        : null
+          id: image.id,
+          url: toAbsoluteUrl(req, `/static/${image.relative_path}`),
+          mime: image.mime || null,
+          original_name: image.original_name || null
+        }
+        : null,
+    pi_info: piInfo ? {
+      content_md: piInfo.content_md,
+      content_html: piInfo.content_html,
+      content_format: piInfo.content_format
+    } : null
   };
 };
 
@@ -85,6 +92,10 @@ export async function listMembers(req, res) {
     }
   }
 
+  if (req.query.type) {
+    where.type = req.query.type;
+  }
+
   const rows = await Member.findAll({
     where,
     include: [
@@ -92,6 +103,11 @@ export async function listMembers(req, res) {
         model: Asset,
         as: 'image',
         attributes: ['id', 'relative_path', 'mime', 'original_name']
+      },
+      {
+        model: MemberPiInfo,
+        as: 'pi_info',
+        required: false
       }
     ],
     order: [

@@ -7,6 +7,7 @@ import {
   Asset,
   Content,
   Member,
+  MemberPiInfo,
   Module,
   Settings
 } from '../models/index.js';
@@ -60,7 +61,9 @@ const mapMember = (req, row) => {
   return {
     id: data.id,
     name: data.name,
+    name: data.name,
     position: data.position,
+    type: data.type,
     is_pi: data.is_pi,
     research_interests: data.research_interests,
     hobbies: data.hobbies,
@@ -73,11 +76,11 @@ const mapMember = (req, row) => {
     image:
       image && image.relative_path
         ? {
-            id: image.id,
-            url: toAbsoluteUrl(req, `/static/${image.relative_path}`),
-            mime: image.mime || null,
-            original_name: image.original_name || null
-          }
+          id: image.id,
+          url: toAbsoluteUrl(req, `/static/${image.relative_path}`),
+          mime: image.mime || null,
+          original_name: image.original_name || null
+        }
         : null
   };
 };
@@ -229,7 +232,7 @@ export async function getMe(req, res) {
   });
 
   if (!user || user.is_active !== 1) {
-    req.session.destroy(() => {});
+    req.session.destroy(() => { });
     throw new ApiError(401, 'Unauthorized');
   }
 
@@ -363,7 +366,9 @@ export async function listMembers(req, res) {
 export async function createMember(req, res) {
   const payload = {
     name: req.body.name.trim(),
+    name: req.body.name.trim(),
     position: normalizeOptionalText(req.body.position),
+    type: req.body.type || 'student',
     is_pi: toTinyInt(req.body.is_pi, 0),
     research_interests: normalizeOptionalText(req.body.research_interests),
     hobbies: normalizeOptionalText(req.body.hobbies),
@@ -393,7 +398,9 @@ export async function createMember(req, res) {
 export async function updateMember(req, res) {
   const payload = {
     name: req.body.name.trim(),
+    name: req.body.name.trim(),
     position: normalizeOptionalText(req.body.position),
+    type: req.body.type || 'student',
     is_pi: toTinyInt(req.body.is_pi, 0),
     research_interests: normalizeOptionalText(req.body.research_interests),
     hobbies: normalizeOptionalText(req.body.hobbies),
@@ -730,9 +737,54 @@ export async function updateAdminSiteSettings(req, res) {
     };
   }
 
-  const data = await updateSiteSettingsService(patch);
   res.json({
     ok: true,
     data
+  });
+}
+
+export async function getMemberPiInfo(req, res) {
+  const memberId = req.params.id;
+  const info = await MemberPiInfo.findOne({ where: { member_id: memberId } });
+
+  res.json({
+    ok: true,
+    data: info ? toPlain(info) : null
+  });
+}
+
+export async function updateMemberPiInfo(req, res) {
+  const memberId = req.params.id;
+  const contentFormat = req.body.content_format || 'markdown';
+
+  let contentMd = null;
+  let contentHtml = null;
+
+  if (contentFormat === 'markdown') {
+    contentMd = req.body.content_md || '';
+  }
+
+  if (contentFormat === 'richtext') {
+    contentHtml = sanitizeRichText(req.body.content_html || '');
+  }
+
+  const payload = {
+    member_id: memberId,
+    content_format: contentFormat,
+    content_md: contentMd,
+    content_html: contentHtml
+  };
+
+  const existing = await MemberPiInfo.findOne({ where: { member_id: memberId } });
+  if (existing) {
+    await existing.update(payload);
+  } else {
+    await MemberPiInfo.create(payload);
+  }
+
+  const updated = await MemberPiInfo.findOne({ where: { member_id: memberId } });
+  res.json({
+    ok: true,
+    data: toPlain(updated)
   });
 }

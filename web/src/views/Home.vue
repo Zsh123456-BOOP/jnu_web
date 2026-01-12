@@ -89,18 +89,7 @@ onMounted(() => {
           </div>
         </div>
         <div class="hero-visual">
-          <div class="blob blob-1"></div>
-          <div class="blob blob-2"></div>
-          <div class="glass-card">
-            <div class="stat">
-              <span class="stat-num">40+</span>
-              <span class="stat-label">Papers</span>
-            </div>
-            <div class="stat">
-              <span class="stat-num">12</span>
-              <span class="stat-label">Projects</span>
-            </div>
-          </div>
+          <img src="../assets/image.png" alt="Lab Visual" class="hero-image" />
         </div>
       </div>
     </section>
@@ -192,9 +181,16 @@ onMounted(() => {
 /* Visual Blobs & Glass Card */
 .hero-visual {
   position: relative;
-  height: 400px;
-  display: none;
-  /* Mobile 隐藏 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hero-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
 }
 
 @media (min-width: 1024px) {

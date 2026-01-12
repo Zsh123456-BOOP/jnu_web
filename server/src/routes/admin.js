@@ -63,6 +63,7 @@ const isPlainObject = (value) => {
 const memberValidators = [
   body('name').isString().trim().notEmpty().isLength({ max: 100 }),
   body('position').optional({ nullable: true, checkFalsy: true }).isString().trim().isLength({ max: 100 }),
+  body('type').optional().isIn(['in_service', 'student', 'alumni']),
   body('is_pi').optional().custom(isBooleanLike),
   body('research_interests')
     .optional({ nullable: true, checkFalsy: true })
@@ -193,6 +194,25 @@ router.delete(
   [param('id').isInt({ min: 1 })],
   validateRequest,
   asyncHandler(adminController.deleteMember)
+);
+
+router.get(
+  '/admin/members/:id/pi-info',
+  [param('id').isInt({ min: 1 })],
+  validateRequest,
+  asyncHandler(adminController.getMemberPiInfo)
+);
+
+router.put(
+  '/admin/members/:id/pi-info',
+  [
+    param('id').isInt({ min: 1 }),
+    body('content_format').optional().isIn(contentFormats),
+    body('content_md').optional().isString(),
+    body('content_html').optional().isString()
+  ],
+  validateRequest,
+  asyncHandler(adminController.updateMemberPiInfo)
 );
 
 router.get(

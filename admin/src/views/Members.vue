@@ -12,6 +12,10 @@ import {
   ElForm,
   ElFormItem,
   ElInput,
+  ElSelect,
+  ElOption,
+  ElRadioGroup,
+  ElRadioButton,
   ElInputNumber,
   ElSwitch,
   ElUpload,
@@ -44,8 +48,22 @@ const form = reactive({
   image_asset_id: null,
   image_url: '',
   sort_order: 0,
-  enabled: true
+  image_url: '',
+  sort_order: 0,
+  enabled: true,
+  type: 'student'
 });
+
+// PI Info
+const piDialogVisible = ref(false);
+const piLoading = ref(false);
+const currentPiMember = ref(null);
+const piForm = reactive({
+  content_format: 'markdown',
+  content_md: '',
+  content_html: ''
+});
+import RichTextEditor from '../components/RichTextEditor.vue'; 
 
 const rules = {
   name: [{ required: true, message: '请输入姓名', trigger: 'blur' }]
@@ -63,6 +81,7 @@ const resetForm = () => {
   form.image_url = '';
   form.sort_order = 0;
   form.enabled = true;
+  form.type = 'student';
 };
 
 const normalizeOptional = (value) => {
@@ -120,7 +139,50 @@ const openEdit = (row) => {
   form.image_url = row.image?.url || '';
   form.sort_order = Number(row.sort_order || 0);
   form.enabled = Number(row.enabled) === 1;
+  form.type = row.type || 'student';
   dialogVisible.value = true;
+};
+
+const openPiInfo = async (row) => {
+  currentPiMember.value = row;
+  piDialogVisible.value = true;
+  piLoading.value = true;
+  piForm.content_format = 'markdown';
+  piForm.content_md = '';
+  piForm.content_html = '';
+
+  try {
+    const res = await api.httpClient.get(`/admin/members/${row.id}/pi-info`);
+    if (res.data) {
+      piForm.content_format = res.data.content_format || 'markdown';
+      piForm.content_md = res.data.content_md || '';
+      piForm.content_html = res.data.content_html || '';
+    }
+  } catch (err) {
+      if (err.response && err.response.status !== 404) {
+          ElMessage.error('Get PI Info Failed');
+      }
+  } finally {
+    piLoading.value = false;
+  }
+};
+
+const savePiInfo = async () => {
+  if (!currentPiMember.value) return;
+  piLoading.value = true;
+  try {
+    await api.httpClient.put(`/admin/members/${currentPiMember.value.id}/pi-info`, {
+      content_format: piForm.content_format,
+      content_md: piForm.content_format === 'markdown' ? piForm.content_md : undefined,
+      content_html: piForm.content_format === 'richtext' ? piForm.content_html : undefined
+    });
+    ElMessage.success('PI Info Saved');
+    piDialogVisible.value = false;
+  } catch (err) {
+    ElMessage.error('Save PI Info Failed');
+  } finally {
+    piLoading.value = false;
+  }
 };
 
 const handleUpload = async (options) => {
@@ -157,8 +219,10 @@ const saveMember = async () => {
     email: normalizeOptional(form.email),
     image_asset_id: normalizeOptionalNumber(form.image_asset_id),
     sort_order: Number(form.sort_order) || 0,
-    enabled: form.enabled ? 1 : 0
+    enabled: form.enabled ? 1 : 0,
+    type: form.type
   };
+
   try {
     if (form.id) {
       await api.members.update(form.id, payload);
@@ -217,7 +281,16 @@ onMounted(loadMembers);
           </template>
         </el-table-column>
         <el-table-column prop="name" label="姓名" min-width="120" />
+        <el-table-column prop="name" label="姓名" min-width="120" />
         <el-table-column prop="position" label="职位" min-width="140" />
+        <el-table-column prop="type" label="类型" width="100">
+           <template #default="{ row }">
+             <el-tag v-if="row.type === 'in_service'">在职</el-tag>
+             <el-tag v-else-if="row.type === 'student'" type="success">在读</el-tag>
+             <el-tag v-else-if="row.type === 'alumni'" type="info">毕业</el-tag>
+             <span v-else>{{ row.type }}</span>
+           </template>
+        </el-table-column>
         <el-table-column label="PI" width="90">
           <template #default="{ row }">
             <el-tag v-if="Number(row.is_pi) === 1" type="warning">PI</el-tag>
@@ -235,6 +308,7 @@ onMounted(loadMembers);
         <el-table-column label="操作" width="180" fixed="right">
           <template #default="{ row }">
             <div class="table-actions">
+              <el-button v-if="Number(row.is_pi) === 1" size="small" type="warning" plain @click="openPiInfo(row)">PI Info</el-button>
               <el-button size="small" type="primary" @click="openEdit(row)">编辑</el-button>
               <el-button size="small" type="danger" plain @click="deleteMember(row)">删除</el-button>
             </div>
@@ -263,6 +337,13 @@ onMounted(loadMembers);
       <el-form ref="formRef" :model="form" :rules="rules" label-position="top">
         <el-form-item label="姓名" prop="name">
           <el-input v-model="form.name" />
+        </el-form-item>
+        <el-form-item label="类型" prop="type">
+           <el-select v-model="form.type">
+             <el-option label="在读" value="student" />
+             <el-option label="在职" value="in_service" />
+             <el-option label="毕业" value="alumni" />
+           </el-select>
         </el-form-item>
         <el-form-item label="职位">
           <el-input v-model="form.position" />
@@ -305,6 +386,37 @@ onMounted(loadMembers);
       <template #footer>
         <el-button @click="dialogVisible = false">取消</el-button>
         <el-button type="primary" @click="saveMember">保存</el-button>
+      </template>
+    </el-dialog>
+
+    <el-dialog
+      v-model="piDialogVisible"
+      :title="currentPiMember ? `PI Info: ${currentPiMember.name}` : 'PI Info'"
+      width="80vw"
+      class="responsive-dialog dialog--form"
+    >
+      <div v-loading="piLoading">
+         <el-form-item label="Format">
+           <el-radio-group v-model="piForm.content_format">
+             <el-radio-button value="markdown">Markdown</el-radio-button>
+             <el-radio-button value="richtext">RichText</el-radio-button>
+           </el-radio-group>
+         </el-form-item>
+         <div style="margin-top: 10px;">
+           <el-input
+             v-if="piForm.content_format === 'markdown'"
+             v-model="piForm.content_md"
+             type="textarea"
+             :rows="15"
+             placeholder="Markdown content"
+             style="font-family: monospace;"
+           />
+           <RichTextEditor v-else v-model="piForm.content_html" />
+         </div>
+      </div>
+      <template #footer>
+        <el-button @click="piDialogVisible = false">Cancel</el-button>
+        <el-button type="primary" @click="savePiInfo">Save</el-button>
       </template>
     </el-dialog>
   </div>

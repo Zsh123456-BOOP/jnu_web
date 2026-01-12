@@ -3,7 +3,7 @@ import { DataTypes, Model } from 'sequelize';
 // Table: member
 // Columns: id, name, position, is_pi, research_interests, hobbies, email, image_asset_id,
 //          sort_order, enabled, created_at, updated_at
-export class Member extends Model {}
+export class Member extends Model { }
 
 export function initMember(sequelize) {
   Member.init(
@@ -20,6 +20,11 @@ export function initMember(sequelize) {
       position: {
         type: DataTypes.STRING(100),
         allowNull: true
+      },
+      type: {
+        type: DataTypes.ENUM('in_service', 'student', 'alumni'),
+        allowNull: false,
+        defaultValue: 'student'
       },
       is_pi: {
         type: DataTypes.TINYINT,
