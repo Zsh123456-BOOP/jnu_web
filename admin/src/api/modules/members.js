@@ -41,3 +41,13 @@ export async function remove(id) {
   await httpClient.delete(ENDPOINTS.members.byId(id));
   return null;
 }
+
+export async function getPiInfo(id) {
+  const res = await httpClient.get(ENDPOINTS.members.piInfo(id));
+  return res.data || null;
+}
+
+export async function updatePiInfo(id, payload) {
+  const res = await httpClient.put(ENDPOINTS.members.piInfo(id), payload);
+  return res.data?.data || null;
+}

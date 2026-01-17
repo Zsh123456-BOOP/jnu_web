@@ -12,7 +12,8 @@ export const ENDPOINTS = {
   },
   members: {
     list: `${ADMIN_BASE}/members`,
-    byId: (id) => `${ADMIN_BASE}/members/${id}`
+    byId: (id) => `${ADMIN_BASE}/members/${id}`,
+    piInfo: (id) => `${ADMIN_BASE}/members/${id}/pi-info`
   },
   contents: {
     list: `${ADMIN_BASE}/contents`,
