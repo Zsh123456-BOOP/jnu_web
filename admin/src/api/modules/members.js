@@ -44,7 +44,7 @@ export async function remove(id) {
 
 export async function getPiInfo(id) {
   const res = await httpClient.get(ENDPOINTS.members.piInfo(id));
-  return res.data || null;
+  return res.data?.data || null;
 }
 
 export async function updatePiInfo(id, payload) {
