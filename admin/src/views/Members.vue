@@ -23,7 +23,7 @@ import {
   ElTag
 } from 'element-plus';
 import api from '../api';
-import { getErrorMessage } from '../api/httpClient';
+import httpClient, { getErrorMessage } from '../api/httpClient';
 
 const loading = ref(false);
 const uploading = ref(false);
@@ -152,7 +152,7 @@ const openPiInfo = async (row) => {
   piForm.content_html = '';
 
   try {
-    const res = await api.httpClient.get(`/admin/members/${row.id}/pi-info`);
+    const res = await httpClient.get(`/admin/members/${row.id}/pi-info`);
     if (res.data) {
       piForm.content_format = res.data.content_format || 'markdown';
       piForm.content_md = res.data.content_md || '';
@@ -171,7 +171,7 @@ const savePiInfo = async () => {
   if (!currentPiMember.value) return;
   piLoading.value = true;
   try {
-    await api.httpClient.put(`/admin/members/${currentPiMember.value.id}/pi-info`, {
+    await httpClient.put(`/admin/members/${currentPiMember.value.id}/pi-info`, {
       content_format: piForm.content_format,
       content_md: piForm.content_format === 'markdown' ? piForm.content_md : undefined,
       content_html: piForm.content_format === 'richtext' ? piForm.content_html : undefined
