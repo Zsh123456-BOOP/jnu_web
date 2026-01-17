@@ -14,6 +14,7 @@ export const ENDPOINTS = {
     publicSiteSettings: '/public/site-settings'
   },
   members: {
-    list: '/members'
+    list: '/members',
+    piInfo: (id) => `/members/${id}/pi-info`
   }
 };

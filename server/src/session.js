@@ -29,10 +29,11 @@ export const sessionMiddleware = session({
   resave: false,
   saveUninitialized: false,
   store: sessionStore,
+  proxy: true,
   cookie: {
     httpOnly: true,
     sameSite: 'lax',
-    secure: config.env === 'production',
+    secure: process.env.SESSION_SECURE === '1' || process.env.SESSION_SECURE === 'true',
     maxAge: 1000 * 60 * 60 * 24
   }
 });

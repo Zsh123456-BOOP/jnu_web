@@ -64,16 +64,25 @@ const groupedMembers = computed(() => {
 const showModal = ref(false);
 const selectedMember = ref(null);
 const piInfo = ref(null);
+const piLoading = ref(false);
 import MarkdownRenderer from '../components/ModuleListDetail.vue'; // Hack: borrowing markdown renderer or I should create/import a proper one. 
 // actually I should check if there is a MarkdownRenderer component. 
 // I saw MarkdownRenderer.vue in web/src/components/MarkdownRenderer.vue in list_dir output (step 39).
 import MdRenderer from '../components/MarkdownRenderer.vue';
 
-const openMember = (member) => {
-  if (isPiPage.value) {
-    selectedMember.value = member;
-    piInfo.value = member.pi_info;
-    showModal.value = true;
+const openMember = async (member) => {
+  if (!isPiPage.value) return;
+  selectedMember.value = member;
+  piInfo.value = null;
+  showModal.value = true;
+  piLoading.value = true;
+  try {
+    const info = await api.members.getPiInfo(member.id);
+    piInfo.value = info;
+  } catch (err) {
+    piInfo.value = null;
+  } finally {
+    piLoading.value = false;
   }
 };
   
@@ -159,7 +168,8 @@ watch(isPiPage, () => {
              <p>{{ selectedMember?.position }}</p>
           </div>
           <div class="modal-body prose">
-             <div v-if="piInfo">
+             <div v-if="piLoading">Loading...</div>
+             <div v-else-if="piInfo">
                <MdRenderer v-if="piInfo.content_format === 'markdown'" :source="piInfo.content_md" />
                <div v-else v-html="piInfo.content_html"></div>
              </div>

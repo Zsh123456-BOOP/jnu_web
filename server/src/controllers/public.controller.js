@@ -264,3 +264,11 @@ export async function getPageContent(req, res) {
     data: mapContent(row)
   });
 }
+
+export async function getMemberPiInfo(req, res) {
+  const info = await MemberPiInfo.findOne({ where: { member_id: req.params.id } });
+  res.json({
+    ok: true,
+    data: info ? toPlain(info) : null
+  });
+}

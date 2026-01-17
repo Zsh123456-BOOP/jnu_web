@@ -13,6 +13,13 @@ router.get('/public/site-settings', asyncHandler(publicController.getPublicSiteS
 router.get('/members', asyncHandler(publicController.listMembers));
 
 router.get(
+  '/members/:id/pi-info',
+  [param('id').isInt({ min: 1 })],
+  validateRequest,
+  asyncHandler(publicController.getMemberPiInfo)
+);
+
+router.get(
   '/modules',
   [query('nav').optional().isIn(['1'])],
   validateRequest,
