@@ -3,7 +3,10 @@ import { Asset, Content, Member, MemberPiInfo, Module, Settings } from '../model
 import { safeJsonParse } from '../utils/json.js';
 import { getPagination } from '../utils/pagination.js';
 import { toAbsoluteUrl } from '../utils/url.js';
-import { getSiteSettings as getSiteSettingsService } from '../services/site-settings.js';
+import {
+  getSiteSettings as getSiteSettingsService,
+  getSiteMetaSettings
+} from '../services/site-settings.js';
 
 const toPlain = (row) => (row && typeof row.toJSON === 'function' ? row.toJSON() : row);
 
@@ -76,7 +79,14 @@ export async function getSiteSettings(_req, res) {
 }
 
 export async function getPublicSiteSettings(_req, res) {
-  const data = await getSiteSettingsService();
+  const [footerSettings, metaSettings] = await Promise.all([
+    getSiteSettingsService(),
+    getSiteMetaSettings()
+  ]);
+  const data = {
+    ...metaSettings,
+    ...footerSettings
+  };
   res.json({
     ok: true,
     data

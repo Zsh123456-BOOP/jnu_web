@@ -2,6 +2,7 @@ import { Settings } from '../models/index.js';
 import { safeJsonParse } from '../utils/json.js';
 
 const FOOTER_KEY = 'site.footer';
+const META_KEY = 'site.meta';
 
 export const DEFAULT_FOOTER = {
   contact: {
@@ -18,6 +19,11 @@ export const DEFAULT_FOOTER = {
       ]
     }
   ]
+};
+
+export const DEFAULT_SITE_META = {
+  site_title: 'JNU Web',
+  favicon_url: ''
 };
 
 const isPlainObject = (value) =>
@@ -40,6 +46,17 @@ const mergeDeep = (base, patch) => {
   return output;
 };
 
+const normalizeMetaSettings = (value = {}) => {
+  const siteTitle =
+    typeof value.site_title === 'string' ? value.site_title : DEFAULT_SITE_META.site_title;
+  const faviconUrl =
+    typeof value.favicon_url === 'string' ? value.favicon_url : DEFAULT_SITE_META.favicon_url;
+  return {
+    site_title: siteTitle,
+    favicon_url: faviconUrl
+  };
+};
+
 export async function getSiteSettings() {
   const row = await Settings.findByPk(FOOTER_KEY);
   const stored = row ? safeJsonParse(row.value_json, {}) : {};
@@ -55,5 +72,29 @@ export async function updateSiteSettings(patch = {}) {
     key: FOOTER_KEY,
     value_json: next.footer
   });
+  return next;
+}
+
+export async function getSiteMetaSettings() {
+  const row = await Settings.findByPk(META_KEY);
+  const stored = row ? safeJsonParse(row.value_json, {}) : {};
+  return normalizeMetaSettings(stored);
+}
+
+export async function updateSiteMetaSettings(patch = {}) {
+  const current = await getSiteMetaSettings();
+  const next = { ...current };
+  if (patch.site_title !== undefined) {
+    next.site_title = patch.site_title;
+  }
+  if (patch.favicon_url !== undefined) {
+    next.favicon_url = patch.favicon_url;
+  }
+
+  await Settings.upsert({
+    key: META_KEY,
+    value_json: next
+  });
+
   return next;
 }

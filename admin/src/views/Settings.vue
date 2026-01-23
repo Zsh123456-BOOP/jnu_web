@@ -6,7 +6,8 @@ import { getErrorMessage } from '../api/httpClient';
 
 const loading = ref(false);
 const saving = ref(false);
-const footerLoading = ref(false);
+const siteSettingsLoading = ref(false);
+const metaSaving = ref(false);
 const footerSaving = ref(false);
 const rawValue = ref({});
 
@@ -14,6 +15,11 @@ const form = reactive({
   siteName: '',
   logoText: '',
   homeModules: '[]'
+});
+
+const metaForm = reactive({
+  siteTitle: '',
+  faviconUrl: ''
 });
 
 const footerForm = reactive({
@@ -62,17 +68,40 @@ const saveSettings = async () => {
   }
 };
 
-const loadFooterSettings = async () => {
-  footerLoading.value = true;
+const loadSiteSettings = async () => {
+  siteSettingsLoading.value = true;
   try {
     const data = await api.settings.getSiteSettings();
+    metaForm.siteTitle = data?.site_title || '';
+    metaForm.faviconUrl = data?.favicon_url || '';
     const contact = data?.footer?.contact || {};
     footerForm.address = contact.address || '';
     footerForm.email = contact.email || '';
   } catch (err) {
-    ElMessage.error(getErrorMessage(err, '加载联系方式失败'));
+    ElMessage.error(getErrorMessage(err, '加载站点设置失败'));
   } finally {
-    footerLoading.value = false;
+    siteSettingsLoading.value = false;
+  }
+};
+
+const saveSiteMetaSettings = async () => {
+  const title = metaForm.siteTitle.trim();
+  if (!title) {
+    ElMessage.warning('站点标题不能为空');
+    return;
+  }
+  metaSaving.value = true;
+  try {
+    await api.settings.updateSiteSettings({
+      site_title: title,
+      favicon_url: metaForm.faviconUrl.trim()
+    });
+    ElMessage.success('站点标题已保存');
+    await loadSiteSettings();
+  } catch (err) {
+    ElMessage.error(getErrorMessage(err, '保存失败'));
+  } finally {
+    metaSaving.value = false;
   }
 };
 
@@ -88,7 +117,7 @@ const saveFooterSettings = async () => {
       }
     });
     ElMessage.success('联系方式已保存');
-    await loadFooterSettings();
+    await loadSiteSettings();
   } catch (err) {
     ElMessage.error(getErrorMessage(err, '保存失败'));
   } finally {
@@ -98,7 +127,7 @@ const saveFooterSettings = async () => {
 
 onMounted(() => {
   loadSettings();
-  loadFooterSettings();
+  loadSiteSettings();
 });
 </script>
 
@@ -135,7 +164,33 @@ onMounted(() => {
       </el-form>
     </el-card>
 
-    <el-card class="page-card" v-loading="footerLoading">
+    <el-card class="page-card" v-loading="siteSettingsLoading">
+      <template #header>
+        <div class="card-header">
+          <div>
+            <h2>站点标题与图标</h2>
+            <p class="page-subtitle">浏览器标签页标题与 favicon</p>
+          </div>
+          <el-button type="primary" :loading="metaSaving" @click="saveSiteMetaSettings">
+            保存标题
+          </el-button>
+        </div>
+      </template>
+      <el-form label-position="top">
+        <el-form-item label="站点标题">
+          <el-input v-model="metaForm.siteTitle" placeholder="例如: JNU Web" />
+        </el-form-item>
+        <el-form-item label="Favicon URL">
+          <el-input
+            v-model="metaForm.faviconUrl"
+            placeholder="https://example.com/favicon.ico"
+          />
+          <small class="help-text">支持为空，留空则使用默认浏览器图标。</small>
+        </el-form-item>
+      </el-form>
+    </el-card>
+
+    <el-card class="page-card" v-loading="siteSettingsLoading">
       <template #header>
         <div class="card-header">
           <div>

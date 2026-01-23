@@ -78,6 +78,8 @@ const memberValidators = [
 ];
 
 const siteSettingsValidators = [
+  body('site_title').optional({ nullable: true }).isString().trim().isLength({ max: 60 }),
+  body('favicon_url').optional({ nullable: true }).isString().trim().isLength({ max: 2048 }),
   body('footer').optional().custom(isPlainObject),
   body('footer.contact').optional().custom(isPlainObject),
   body('footer.contact.address')

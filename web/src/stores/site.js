@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import api from '../api';
+import { applySiteMeta } from '../utils/site-meta';
 
 export const useSiteStore = defineStore('site', {
   state: () => ({
@@ -63,8 +64,10 @@ export const useSiteStore = defineStore('site', {
       this.loadingPublicSettings = true;
       try {
         this.publicSettings = await api.settings.getPublicSiteSettings();
+        applySiteMeta(this.publicSettings || {});
       } catch {
         this.publicSettings = null;
+        applySiteMeta({});
       } finally {
         this.loadingPublicSettings = false;
       }

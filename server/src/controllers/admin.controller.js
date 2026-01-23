@@ -21,7 +21,9 @@ import { toAbsoluteUrl } from '../utils/url.js';
 import { getSafeStoragePath } from '../utils/upload.js';
 import {
   getSiteSettings as getSiteSettingsService,
-  updateSiteSettings as updateSiteSettingsService
+  updateSiteSettings as updateSiteSettingsService,
+  getSiteMetaSettings,
+  updateSiteMetaSettings
 } from '../services/site-settings.js';
 
 const toPlain = (row) => (row && typeof row.toJSON === 'function' ? row.toJSON() : row);
@@ -717,7 +719,14 @@ export async function updateSiteSettings(req, res) {
 }
 
 export async function getAdminSiteSettings(_req, res) {
-  const data = await getSiteSettingsService();
+  const [footerSettings, metaSettings] = await Promise.all([
+    getSiteSettingsService(),
+    getSiteMetaSettings()
+  ]);
+  const data = {
+    ...metaSettings,
+    ...footerSettings
+  };
   res.json({
     ok: true,
     data
@@ -725,10 +734,10 @@ export async function getAdminSiteSettings(_req, res) {
 }
 
 export async function updateAdminSiteSettings(req, res) {
-  const patch = {};
+  const footerPatch = {};
   if (req.body.footer) {
     const footer = req.body.footer;
-    patch.footer = {
+    footerPatch.footer = {
       contact: {
         address: footer?.contact?.address?.trim?.() || footer?.contact?.address || '',
         email: footer?.contact?.email?.trim?.() || footer?.contact?.email || ''
@@ -736,6 +745,26 @@ export async function updateAdminSiteSettings(req, res) {
       links: Array.isArray(footer?.links) ? footer.links : undefined
     };
   }
+
+  const metaPatch = {};
+  if (req.body.site_title !== undefined) {
+    metaPatch.site_title = String(req.body.site_title);
+  }
+  if (req.body.favicon_url !== undefined) {
+    metaPatch.favicon_url = String(req.body.favicon_url);
+  }
+
+  const [footerSettings, metaSettings] = await Promise.all([
+    Object.keys(footerPatch).length
+      ? updateSiteSettingsService(footerPatch)
+      : getSiteSettingsService(),
+    Object.keys(metaPatch).length ? updateSiteMetaSettings(metaPatch) : getSiteMetaSettings()
+  ]);
+
+  const data = {
+    ...metaSettings,
+    ...footerSettings
+  };
 
   res.json({
     ok: true,
