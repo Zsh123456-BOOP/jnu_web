@@ -23,7 +23,9 @@ import {
   getSiteSettings as getSiteSettingsService,
   updateSiteSettings as updateSiteSettingsService,
   getSiteMetaSettings,
-  updateSiteMetaSettings
+  updateSiteMetaSettings,
+  getHomeTextSettings,
+  updateHomeTextSettings
 } from '../services/site-settings.js';
 
 const toPlain = (row) => (row && typeof row.toJSON === 'function' ? row.toJSON() : row);
@@ -719,13 +721,15 @@ export async function updateSiteSettings(req, res) {
 }
 
 export async function getAdminSiteSettings(_req, res) {
-  const [footerSettings, metaSettings] = await Promise.all([
+  const [footerSettings, metaSettings, homeTextSettings] = await Promise.all([
     getSiteSettingsService(),
-    getSiteMetaSettings()
+    getSiteMetaSettings(),
+    getHomeTextSettings()
   ]);
   const data = {
     ...metaSettings,
-    ...footerSettings
+    ...footerSettings,
+    home_text: homeTextSettings
   };
   res.json({
     ok: true,
@@ -734,6 +738,13 @@ export async function getAdminSiteSettings(_req, res) {
 }
 
 export async function updateAdminSiteSettings(req, res) {
+  const normalizeText = (value) => {
+    if (value === undefined || value === null) {
+      return undefined;
+    }
+    return String(value).trim();
+  };
+
   const footerPatch = {};
   if (req.body.footer) {
     const footer = req.body.footer;
@@ -754,16 +765,46 @@ export async function updateAdminSiteSettings(req, res) {
     metaPatch.favicon_url = String(req.body.favicon_url);
   }
 
-  const [footerSettings, metaSettings] = await Promise.all([
+  const homeTextPatch = {};
+  if (req.body.home_text && typeof req.body.home_text === 'object') {
+    const homeText = req.body.home_text;
+    const mapping = [
+      'badge_text',
+      'hero_title_prefix',
+      'hero_title_highlight',
+      'hero_title_suffix',
+      'hero_subtitle',
+      'hero_primary_label',
+      'hero_secondary_label',
+      'hero_image_alt',
+      'latest_title',
+      'latest_loading',
+      'latest_error',
+      'latest_empty',
+      'sidebar_title',
+      'card_title_fallback'
+    ];
+
+    mapping.forEach((key) => {
+      const nextValue = normalizeText(homeText[key]);
+      if (nextValue !== undefined) {
+        homeTextPatch[key] = nextValue;
+      }
+    });
+  }
+
+  const [footerSettings, metaSettings, homeTextSettings] = await Promise.all([
     Object.keys(footerPatch).length
       ? updateSiteSettingsService(footerPatch)
       : getSiteSettingsService(),
-    Object.keys(metaPatch).length ? updateSiteMetaSettings(metaPatch) : getSiteMetaSettings()
+    Object.keys(metaPatch).length ? updateSiteMetaSettings(metaPatch) : getSiteMetaSettings(),
+    Object.keys(homeTextPatch).length ? updateHomeTextSettings(homeTextPatch) : getHomeTextSettings()
   ]);
 
   const data = {
     ...metaSettings,
-    ...footerSettings
+    ...footerSettings,
+    home_text: homeTextSettings
   };
 
   res.json({

@@ -12,6 +12,30 @@ const latestError = ref('');
 
 const moduleMap = computed(() => siteStore.moduleMap);
 const homeConfig = computed(() => siteStore.settingsSite?.value || {});
+const DEFAULT_HOME_TEXT = {
+  badge_text: 'Welcome to the Lab',
+  hero_title_prefix: 'Exploring the frontiers of',
+  hero_title_highlight: 'Bioinformatics',
+  hero_title_suffix: 'and Data Science.',
+  hero_subtitle:
+    'Browse our latest publications, discover open-source software, and meet the team behind the research.',
+  hero_primary_label: 'Our Research',
+  hero_secondary_label: 'Read about us',
+  hero_image_alt: 'Lab Visual',
+  latest_title: 'Latest updates',
+  latest_loading: 'Loading latest updates...',
+  latest_error: 'Failed to load latest content',
+  latest_empty: 'No updates yet.',
+  sidebar_title: 'Explore modules',
+  card_title_fallback: 'Untitled'
+};
+const homeText = computed(() => {
+  const remote = siteStore.publicSettings?.home_text || {};
+  return {
+    ...DEFAULT_HOME_TEXT,
+    ...(remote || {})
+  };
+});
 
 const homeCards = computed(() => {
   const configured = homeConfig.value.homeModules;
@@ -38,7 +62,7 @@ const homeCards = computed(() => {
         const url = item.url || (slug ? `/${slug}` : null);
         if (!url) return null;
         return {
-          title: item.title || module?.name || slug || 'Untitled',
+          title: item.title || module?.name || slug || homeText.value.card_title_fallback,
           description: item.description || module?.config_json?.summary || module?.type || '',
           typeLabel: module?.type || (item.url ? 'External' : 'Module'),
           to: url,
@@ -57,7 +81,7 @@ const loadLatest = async () => {
     const data = await api.contents.list({ pageSize: 5 });
     latestContents.value = data.items || [];
   } catch (err) {
-    latestError.value = err?.message || 'Failed to load latest content';
+    latestError.value = err?.message || homeText.value.latest_error;
   } finally {
     latestLoading.value = false;
   }
@@ -75,21 +99,27 @@ onMounted(() => {
       <div class="container hero-container">
         <div class="hero-text">
           <div class="badge-wrapper">
-            <span class="badge badge--primary-soft">Welcome to the Lab</span>
+            <span class="badge badge--primary-soft">{{ homeText.badge_text }}</span>
           </div>
           <h1 class="hero-title">
-            Exploring the frontiers of <span class="highlight">Bioinformatics</span> and Data Science.
+            {{ homeText.hero_title_prefix }}
+            <span class="highlight">{{ homeText.hero_title_highlight }}</span>
+            {{ homeText.hero_title_suffix }}
           </h1>
           <p class="hero-subtitle">
-            Browse our latest publications, discover open-source software, and meet the team behind the research.
+            {{ homeText.hero_subtitle }}
           </p>
           <div class="hero-actions">
-            <RouterLink class="btn btn--primary btn--lg" to="/research">Our Research</RouterLink>
-            <RouterLink class="btn btn--text" to="/about">Read about us &rarr;</RouterLink>
+            <RouterLink class="btn btn--primary btn--lg" to="/research">
+              {{ homeText.hero_primary_label }}
+            </RouterLink>
+            <RouterLink class="btn btn--text" to="/about">
+              {{ homeText.hero_secondary_label }} &rarr;
+            </RouterLink>
           </div>
         </div>
         <div class="hero-visual">
-          <img src="../assets/image.png" alt="Lab Visual" class="hero-image" />
+          <img src="../assets/image.png" :alt="homeText.hero_image_alt" class="hero-image" />
         </div>
       </div>
     </section>
@@ -98,15 +128,15 @@ onMounted(() => {
       <div class="home-layout-grid">
         <div class="home-main">
           <div class="section-header">
-            <h2>Latest updates</h2>
+            <h2>{{ homeText.latest_title }}</h2>
           </div>
-          <div v-if="latestLoading" class="muted">Loading latest updates...</div>
+          <div v-if="latestLoading" class="muted">{{ homeText.latest_loading }}</div>
           <div v-else-if="latestError" class="muted">{{ latestError }}</div>
-          <ContentList v-else :items="latestContents" empty-text="No updates yet." />
+          <ContentList v-else :items="latestContents" :empty-text="homeText.latest_empty" />
         </div>
         <aside class="home-sidebar">
           <div class="section-header">
-            <h3>Explore modules</h3>
+            <h3>{{ homeText.sidebar_title }}</h3>
           </div>
           <article v-for="card in homeCards" :key="card.title" class="sidebar-card">
             <h4>{{ card.title }} &rarr;</h4>

@@ -53,7 +53,7 @@ const groupedMembers = computed(() => {
   
   // Return non-empty groups with labels
   const result = {};
-  if (groups['in_service'].length) result['Postdoctors'] = groups['in_service'];
+  if (groups['in_service'].length) result['Post-doctoral researchers'] = groups['in_service'];
   if (groups['student'].length) result['Current students'] = groups['student'];
   if (groups['alumni'].length) result['Graduates'] = groups['alumni'];
   

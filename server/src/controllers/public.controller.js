@@ -5,7 +5,8 @@ import { getPagination } from '../utils/pagination.js';
 import { toAbsoluteUrl } from '../utils/url.js';
 import {
   getSiteSettings as getSiteSettingsService,
-  getSiteMetaSettings
+  getSiteMetaSettings,
+  getHomeTextSettings
 } from '../services/site-settings.js';
 
 const toPlain = (row) => (row && typeof row.toJSON === 'function' ? row.toJSON() : row);
@@ -79,13 +80,15 @@ export async function getSiteSettings(_req, res) {
 }
 
 export async function getPublicSiteSettings(_req, res) {
-  const [footerSettings, metaSettings] = await Promise.all([
+  const [footerSettings, metaSettings, homeTextSettings] = await Promise.all([
     getSiteSettingsService(),
-    getSiteMetaSettings()
+    getSiteMetaSettings(),
+    getHomeTextSettings()
   ]);
   const data = {
     ...metaSettings,
-    ...footerSettings
+    ...footerSettings,
+    home_text: homeTextSettings
   };
   res.json({
     ok: true,

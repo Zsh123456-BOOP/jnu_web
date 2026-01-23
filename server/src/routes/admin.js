@@ -91,7 +91,74 @@ const siteSettingsValidators = [
     .optional({ nullable: true, checkFalsy: true })
     .isEmail()
     .isLength({ max: 255 }),
-  body('footer.links').optional().isArray()
+  body('footer.links').optional().isArray(),
+  body('home_text').optional().custom(isPlainObject),
+  body('home_text.badge_text').optional({ nullable: true }).isString().trim().isLength({ max: 80 }),
+  body('home_text.hero_title_prefix')
+    .optional({ nullable: true })
+    .isString()
+    .trim()
+    .isLength({ max: 150 }),
+  body('home_text.hero_title_highlight')
+    .optional({ nullable: true })
+    .isString()
+    .trim()
+    .isLength({ max: 80 }),
+  body('home_text.hero_title_suffix')
+    .optional({ nullable: true })
+    .isString()
+    .trim()
+    .isLength({ max: 150 }),
+  body('home_text.hero_subtitle')
+    .optional({ nullable: true })
+    .isString()
+    .trim()
+    .isLength({ max: 300 }),
+  body('home_text.hero_primary_label')
+    .optional({ nullable: true })
+    .isString()
+    .trim()
+    .isLength({ max: 60 }),
+  body('home_text.hero_secondary_label')
+    .optional({ nullable: true })
+    .isString()
+    .trim()
+    .isLength({ max: 80 }),
+  body('home_text.hero_image_alt')
+    .optional({ nullable: true })
+    .isString()
+    .trim()
+    .isLength({ max: 120 }),
+  body('home_text.latest_title')
+    .optional({ nullable: true })
+    .isString()
+    .trim()
+    .isLength({ max: 80 }),
+  body('home_text.latest_loading')
+    .optional({ nullable: true })
+    .isString()
+    .trim()
+    .isLength({ max: 120 }),
+  body('home_text.latest_error')
+    .optional({ nullable: true })
+    .isString()
+    .trim()
+    .isLength({ max: 160 }),
+  body('home_text.latest_empty')
+    .optional({ nullable: true })
+    .isString()
+    .trim()
+    .isLength({ max: 80 }),
+  body('home_text.sidebar_title')
+    .optional({ nullable: true })
+    .isString()
+    .trim()
+    .isLength({ max: 80 }),
+  body('home_text.card_title_fallback')
+    .optional({ nullable: true })
+    .isString()
+    .trim()
+    .isLength({ max: 80 })
 ];
 
 const upload = createAssetUploadMiddleware();
